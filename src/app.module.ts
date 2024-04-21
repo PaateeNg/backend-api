@@ -17,23 +17,29 @@ require('dotenv').config();
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
     }),
+
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
-      installSubscriptionHandlers: true
-    }), 
+      installSubscriptionHandlers: true,
+    }),
 
     MongooseModule.forRootAsync({
-      useFactory: async (configService: ConfigService)=>({
-        uri: configService.get<string>('MONG_URI')
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('MONG_URI'),
       }),
-      inject: [ConfigService]
+      inject: [ConfigService],
     }),
-    UserModule, AuthModule, VendorModule, PlannerModule, ProductModule, MailModule, BookingModule, CartModule
+    UserModule,
+    AuthModule,
+    VendorModule,
+    PlannerModule,
+    ProductModule,
+    MailModule,
+    BookingModule,
+    CartModule,
   ],
 })
 export class AppModule {}
-
-

@@ -1,96 +1,73 @@
-import { Field, ObjectType } from "@nestjs/graphql";
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Document } from "mongoose";
-import { Role } from "src/common/enum/role.enum";
+import { Field, ObjectType } from '@nestjs/graphql';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { Document } from 'mongoose';
+import { Role } from 'src/common/enum/role.enum';
 
+export type VendorDocument = Vendor & Document;
 @ObjectType()
-  @Schema({timestamps: true})
-  export class Vendor extends Document {
-    @Field(()=>String)
-    _id?: mongoose.Types.ObjectId;
-
-    @Field()
-    @Prop()
-    email: string;
-
-    @Field()
-    @Prop()
-    firstName: string;
-
-    @Field()
-    @Prop()
-    lastName: string;
-
-    @Field()
-    @Prop()
-    password: string;
-  
-    @Field()
-    @Prop()
-    businessName: string;
-
-    @Field()
-    @Prop({enum: Role, default: Role.VENDOR})
-    role: Role
-  
-    @Field()
-    @Prop({ default: false, type: Boolean})
-    approved: boolean;
-
-    @Field()
-    @Prop({ default: false, type: Boolean})
-    deleted: boolean;
-
-    @Field()
-    @Prop({ default: false })
-    suspended: boolean;
-
-    @Field()
-  @Prop({nullable: true, default: null})
-  location: string;
+@Schema({ timestamps: true })
+export class Vendor {
+  @Field()
+  @Prop()
+  email: string;
 
   @Field()
-  @Prop({nullable: true, default: null})
-  category: string;
+  @Prop()
+  firstName: string;
 
   @Field()
-  @Prop({ nullable: true, default: null })
-  years_of_Experience: string;
+  @Prop()
+  lastName: string;
 
   @Field()
-  @Prop({ nullable: true, default: null })
-  profilePicture: string;
+  @Prop()
+  password: string;
 
   @Field()
-  @Prop({default: null, nullable: true}) 
-  businessPhone: string;
+  @Prop()
+  businessName: string;
 
-  // @Field(type => [String] )
-  //   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Product' })
-  //   productmenu: mongoose.Types.ObjectId[];
+  @Field(() => [String])
+  @Prop({ type: [String], enum: Role, default: Role.VENDOR })
+  vendorRole: Role[];
 
-  @Field(()=>[String])
-  @Prop([{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}])
-  productmenu?: [mongoose.Types.ObjectId];
-  
-    
+  @Field()
+  @Prop({ default: false, type: Boolean })
+  isVendorApproved: boolean;
 
-    @Prop({ default: false })
-    emailConfirmed: boolean;
+  @Field()
+  @Prop({ default: false, type: Boolean })
+  isDeleted: boolean;
 
-    @Prop({nullable: true})
-    emailConfirmedToken: string;
-    
-    @Prop({ type: Date, nullable: true })
-    emailTokenExpiration: Date;
+  @Field()
+  @Prop({ type: String })
+  location?: string;
 
-    @Prop({ nullable: true })
-    resetPasswordToken: string;
+  @Field()
+  @Prop({ type: String })
+  category?: string;
 
-    @Prop({type: Date, nullable: true })
-    resetTokenExpiration: Date;
+  @Field()
+  @Prop({ type: String })
+  years_of_Experience?: string;
 
-  }
+  @Field()
+  @Prop({ type: String })
+  profilePicture?: string;
 
-  export const VendorSchema = SchemaFactory.createForClass(Vendor)
-  
+  @Field()
+  @Prop({ type: String })
+  businessPhone?: string;
+
+  @Field(() => [String])
+  @Prop([{ type: [mongoose.Schema.Types.ObjectId], ref: 'Product' }])
+  productMenu?: mongoose.Types.ObjectId[];
+
+  @Prop({ default: false, type: Boolean })
+  isAccountVerified: boolean;
+
+  @Prop({ default: false, type: Boolean })
+  isAccountSuspended: boolean;
+}
+
+export const VendorSchema = SchemaFactory.createForClass(Vendor);

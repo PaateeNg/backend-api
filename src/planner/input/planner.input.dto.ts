@@ -3,16 +3,16 @@ import { Exclude } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 @InputType()
-export class VendorInput {
-  @Field()
-  @IsNotEmpty()
-  @IsEmail()
-  email: string;
-
+export class PlanerInputDto {
   @Field()
   @IsNotEmpty()
   @IsString()
   businessName: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsString()
+  location: string;
 
   @Field()
   @IsNotEmpty()
@@ -26,22 +26,26 @@ export class VendorInput {
 
   @Field()
   @IsNotEmpty()
+  @IsEmail()
   @IsString()
-  // @IsStrongPassword()
-  password: string;
-}
-
-@InputType()
-export class UpdateVendorDto extends PartialType(VendorInput) {
-  @Exclude()
   email: string;
 
-  @Exclude()
+  @Field()
+  @IsNotEmpty()
+  @IsString()
   password: string;
 }
 
 @InputType()
-export class LoginVendorInput {
+export class updatePlannerDto extends PartialType(PlanerInputDto) {
+  @Exclude()
+  password: string;
+  @Exclude()
+  email: string;
+}
+
+@InputType()
+export class LoginPlannerInput {
   @Field()
   @IsNotEmpty()
   @IsEmail()

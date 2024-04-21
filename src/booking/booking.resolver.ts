@@ -11,17 +11,17 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
 import { returnString } from 'src/common/return/return.input';
 
-@Resolver()
+@Resolver((of) => Booked)
 export class BookingResolver {
-    constructor(private bookedService: BookingService){}
+  constructor(private bookedService: BookingService) {}
 
-    @Mutation(of=> returnString)
-    @UseGuards(GqlAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN, Role.USER, Role.MODERATOR)
-    async createBooking( @Args('bookingid') bookinginput: BookingInput, @GetCurrentGqlUser() user: User):Promise<returnString>{
-
-       const { vendorid, productid} = bookinginput;
-
-         return this.bookedService.bookedVendor( bookinginput, user, vendorid, productid)
-    }
+  @Mutation((of) => returnString)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.USER, Role.MODERATOR)
+  async createBooking(
+    @Args('bookingPayload') payload: BookingInput,
+    @GetCurrentGqlUser() user: User,
+  ): Promise<returnString> {
+    return this.bookedService.bookedVendor(payload, user);
+  }
 }

@@ -1,127 +1,258 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { comparePassword } from 'src/common/hashed/util.hash';
-import { LoginUserDto } from 'src/user/dto/loginuser.dto';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { comparePassword, hashed } from 'src/common/hashed/util.hash';
 import { JwtService } from '@nestjs/jwt';
-//import { LoginVendorDto } from 'src/vendor/dto/login.vendor.dto';
-import { LoginPlannerDto } from 'src/planner/dto/login.planner.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { User } from 'src/user/schema/user.schema';
-import { Model } from 'mongoose';
-import { Vendor } from 'src/vendor/schema/vendor.schema';
-import { Planner } from 'src/planner/schema/planner.schema';
-import { LoginUserInput } from 'src/user/input/login.input';
-import { LoginVendorInput } from 'src/vendor/input/loginvendor.input';
-import { LoginVendorDto } from 'src/vendor/dto/login.vendor.dto';
+
 import { returnString } from 'src/common/return/return.input';
-import { LoginPlannerInput } from 'src/planner/input/loginplanner.input';
+import { UserService } from 'src/user/user.service';
+import { PlannerService } from 'src/planner/planner.service';
+import { VendorService } from 'src/vendor/vendor.service';
+import { CreateUserInput, LoginUserInput } from 'src/user/input/user.input.dto';
+import { LoginVendorInput, VendorInput } from 'src/vendor/input/vendor.input';
+import {
+  LoginPlannerInput,
+  PlanerInputDto,
+} from 'src/planner/input/planner.input.dto';
+import { UserDocument } from 'src/user/schema/user.schema';
+import { VendorDocument } from 'src/vendor/schema/vendor.schema';
+import { PlannerDocument } from 'src/planner/schema/planner.schema';
+import {
+  ChangePasswordDto,
+  ForgetPasswordDTO,
+  ResetPasswordDTO,
+  VerifyAccountDto,
+} from './input-dto/auth-input.dto';
 
 @Injectable()
 export class AuthService {
-    constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
-    @InjectModel(Vendor.name) private vendorModel: Model<User>,
-    @InjectModel(Planner.name) private plannerModel: Model<User>,
-    private jwtservice: JwtService,
-   
-    ){
+  constructor(
+    private userService: UserService,
+    private plannerService: PlannerService,
+    private vendorService: VendorService,
+    private jwtService: JwtService,
+  ) {}
 
-    }
-    
-   async  loginuser(logindto: LoginUserInput):Promise<returnString> {
-        const user = await this.userModel.findOne({email: logindto.email})
+  async createUser(payload: CreateUserInput) {
+    const { email, phoneNumber } = payload;
 
-        if(!user){
-            throw new HttpException('check your information and try it again', HttpStatus.UNPROCESSABLE_ENTITY)
-        }
+    const userExist = await this.userService.getByEmailOrPhoneNumber(
+      email,
+      phoneNumber,
+    );
 
-        if((await comparePassword(logindto.password, user.password))===false){
-            throw new HttpException('your password is incorrect', 422)
-        }
-
-        const payload = {
-            user: user.id
-         };
-     
-         //console.log(`${user.firstName} logged in successfulyy`)
-        //  const token = await this.jwtservice.sign(payload);
-        //  console.log({token})
-        //  return    token
-         return {
-            Response: await this.jwtservice.sign(payload)
-         }
-
-        }
-     
-
-  
-
-   async loginvendor(loginvendordto: LoginVendorInput) : Promise<returnString>{
-   
-        const vendor = await this.vendorModel.findOne({
-                email: loginvendordto.email  
-        })
-        if (!vendor) {
-            throw new HttpException('check your credentials', HttpStatus.UNPROCESSABLE_ENTITY)
-        }
-
-        if((await comparePassword(loginvendordto.password, vendor.password))===false){
-            throw new HttpException('your password is incorrect', 422)
-        }
-
-        const payload = {
-             user: vendor.id,
-         };
-     
-         return {
-            Response: this.jwtservice.sign(payload),
-         }
-
-        
-
+    if (userExist) {
+      throw new BadRequestException('User with the same email already exists');
     }
 
-    async loginplanner(loginplannerdto: LoginPlannerInput): Promise<returnString> {
-        const planner = await this.plannerModel.findOne({email: loginplannerdto.email})
+    await this.userService.createUser(payload);
 
-        if (!planner) {
-            throw new HttpException('check your credentials', HttpStatus.UNPROCESSABLE_ENTITY)
-        }
-         if((await comparePassword(loginplannerdto.password, planner.password))===false){
-            throw new HttpException('your password is incorrect', 422)
-        }
-      
-        const payload = {
-            user: planner.id,
-            firstname: planner.firstName
-         };
-     
-         return {
-            Response: this.jwtservice.sign(payload),
-         }
+    return {
+      Response: 'User Sign Up Successfully, Kindly Verify Your Account',
+    };
+  }
 
-        
+  async loginUser(payload: LoginUserInput): Promise<returnString> {
+    const { email, password } = payload;
+    const user = await this.userService.getByEmail(email);
+
+    if ((await comparePassword(password, user.password)) === false) {
+      throw new BadRequestException('your password is incorrect');
     }
 
+    const jwtPayload = {
+      user: user._id,
+    };
 
-    //
-   
-    
-      //very importance without this jwt can not grap the current logged in user
-      //this function is call in strategy file check to understand
-      async getUserjwt(id: string){
-        const user = await this.userModel.findOne({_id: id})
-        const planner = await this.plannerModel.findOne({_id:id})
-        const vendor = await this.vendorModel.findOne({_id:id})
+    return {
+      Response: this.jwtService.sign(jwtPayload),
+    };
+  }
 
-        if (user) {
-           return user;
-        }
-        if (planner) {
-           return planner
-        }
-        if (vendor) {
-           return vendor
-        }
-   }
+  async createVendor(payload: VendorInput) {
+    const { email, businessName } = payload;
 
+    const vendorExist = await this.vendorService.getByEmailOrBusinessName(
+      email,
+      businessName,
+    );
+
+    if (vendorExist) {
+      throw new BadRequestException('Vendor Already Exist');
+    }
+
+    await this.vendorService.createVendor(payload);
+
+    return {
+      Response: 'Vendor Sign Up Successfully, Kindly Verify Your Account',
+    };
+  }
+
+  async loginVendor(payload: LoginVendorInput): Promise<returnString> {
+    const { email, password } = payload;
+    const vendor = await this.vendorService.getByEmail(email);
+
+    if ((await comparePassword(password, vendor.password)) === false) {
+      throw new BadRequestException('Incorrect Password');
+    }
+
+    const jwtPayload = {
+      user: vendor._id,
+    };
+
+    return {
+      Response: this.jwtService.sign(jwtPayload),
+    };
+  }
+
+  async createPlanner(payload: PlanerInputDto) {
+    const { email, businessName } = payload;
+
+    const plannerExist =
+      await this.plannerService.getVendorByEmailOrBusinessName(
+        email,
+        businessName,
+      );
+
+    if (plannerExist) {
+      throw new BadRequestException('Planner Already Exist');
+    }
+
+    await this.plannerService.createPlanner(payload);
+
+    return {
+      Response: 'Planner Sign Up Success, Kindly Verify Your Account',
+    };
+  }
+
+  async loginPlanner(payload: LoginPlannerInput): Promise<returnString> {
+    const { email, password } = payload;
+    const planner = await this.plannerService.getByEmail(email);
+
+    if ((await comparePassword(password, planner.password)) === false) {
+      throw new BadRequestException('your password is incorrect');
+    }
+
+    const jwtPayload = {
+      id: planner._id,
+      firstName: planner.firstName,
+    };
+
+    return {
+      Response: this.jwtService.sign(jwtPayload),
+    };
+  }
+
+  async getUserJwt(id: string) {
+    const [user, planner, vendor] = await Promise.all([
+      await this.userService.getById(id),
+      await this.plannerService.getById(id),
+      await this.vendorService.getById(id),
+    ]);
+
+    if (user) {
+      return user;
+    }
+    if (planner) {
+      return planner;
+    }
+    if (vendor) {
+      return vendor;
+    }
+  }
+
+  async changePassword(
+    payload: ChangePasswordDto,
+    currentUser: UserDocument | VendorDocument | PlannerDocument,
+  ): Promise<returnString> {
+    const { newPassword, oldPassword } = payload;
+
+    try {
+      if (!currentUser) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      if (currentUser.isAccountSuspended) {
+        throw new UnauthorizedException(
+          'Your account is suspended. Please contact support.',
+        );
+      }
+
+      if (
+        (await comparePassword(oldPassword, currentUser.password)) === false
+      ) {
+        throw new BadRequestException('Your old password does not match.');
+      }
+
+      currentUser.password = await hashed(newPassword);
+      await currentUser.save();
+
+      return { Response: 'Password changed successfully.' };
+    } catch (error) {
+      throw new InternalServerErrorException('Server error.');
+    }
+  }
+
+  async forgotPassword(payload: ForgetPasswordDTO) {
+    const { email } = payload;
+
+    const [user, vendor, planner] = await Promise.all([
+      this.userService.getByEmail(email),
+      this.vendorService.getByEmail(email),
+      this.plannerService.getByEmail(email),
+    ]);
+
+    if (user || vendor || planner) {
+      return {
+        Response: 'Otp Sent',
+      };
+    }
+  }
+
+  async resetPassword(payload: ResetPasswordDTO) {
+    const { email, newPassword, code } = payload;
+
+    const [user, vendor, planner] = await Promise.all([
+      this.userService.getByEmail(email),
+      this.vendorService.getByEmail(email),
+      this.plannerService.getByEmail(email),
+    ]);
+
+    // await this.optService.verifyOtp({email, code, type: OtpEnumType.ResetPassword})
+
+    const iUser = user || vendor || planner;
+
+    iUser.password = await hashed(newPassword);
+
+    await iUser.save();
+
+    return {
+      Response: 'Password Reset Successfully',
+    };
+  }
+
+  async verifyAccount(payload: VerifyAccountDto): Promise<returnString> {
+    const { email, code } = payload;
+
+    const [user, vendor, planner] = await Promise.all([
+      this.userService.getByEmail(email),
+      this.vendorService.getByEmail(email),
+      this.plannerService.getByEmail(email),
+    ]);
+
+    // await this.optService.verifyOtp({email, code, type: OtpEnumType.VerifyAccount});
+
+    const iUser = user || vendor || planner;
+
+    iUser.isAccountVerified = true;
+
+    await iUser.save();
+
+    return {
+      Response: 'Account is Now Verified',
+    };
+  }
 }

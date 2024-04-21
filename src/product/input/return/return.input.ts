@@ -1,11 +1,11 @@
-import { Field, Int, ObjectType } from "@nestjs/graphql";
-import { Product } from "src/product/schema/product.schema";
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Product, ProductDocument } from 'src/product/schema/product.schema';
 
 @ObjectType()
 export class ProductsAndCount {
-    @Field(type => [Product])
-    products: Product[];
+  @Field((type) => [Product])
+  products: ProductDocument[];
 
-    @Field(type => Int)
-    totalProductcount: number;
+  @Field((type) => Int)
+  totalProductCount: number;
 }

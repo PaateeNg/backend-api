@@ -1,89 +1,66 @@
-import { Field, GraphQLTimestamp, ObjectType } from "@nestjs/graphql";
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Document } from "mongoose";
-import { Role } from "src/common/enum/role.enum";
+import { Field, ObjectType } from '@nestjs/graphql';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+import { Role } from 'src/common/enum/role.enum';
 
+export type PlannerDocument = Planner & Document;
 
 @ObjectType()
-@Schema({timestamps: true})
-export class Planner extends Document {
-  @Field(()=>String)
-  _id?: mongoose.Types.ObjectId;
+@Schema({ timestamps: true })
+export class Planner {
+  @Field()
+  @Prop({ type: String, unique: true })
+  email: string;
 
-    @Field()
-    @Prop({type: String, unique: true})
-    email: string;
+  @Field()
+  @Prop()
+  firstName: string;
 
-    @Field()
-    @Prop()
-    firstName: string;
+  @Field()
+  @Prop()
+  lastName: string;
 
-    @Field()
-    @Prop()
-    lastName: string;
-
-    @Field()
-    @Prop()
-    password: string;
+  @Field()
+  @Prop()
+  password: string;
 
   @Field()
   @Prop()
   businessName: string;
 
-
   @Field()
-  @Prop({default: false})
-  approved: boolean;
+  @Prop({ default: false })
+  isPlannerApproved: boolean;
 
   @Field()
   @Prop()
   location: string;
 
-    @Field()
-    @Prop({enum: Role, default: Role.PLANNER})
-    role: Role
+  @Field(() => [String])
+  @Prop({ type: [String], enum: Role, default: Role.PLANNER })
+  plannerRole: Role[];
 
   @Field()
-  @Prop({nullable: true, default: ''})
-  categories: string
+  @Prop({ type: String })
+  categories?: string;
 
   @Field()
-  @Prop({ nullable: true, default: '' })
-  years_of_Experience: string;
+  @Prop({ type: String })
+  years_of_Experience?: string;
 
   @Field()
-  @Prop({ nullable: true, default: '' })
-  profilePicture: string;
+  @Prop({ type: String, nullable: true })
+  profilePicture?: string;
 
   @Field()
-  @Prop({ nullable: true, default: '' })
-  phoneNumber: string;
+  @Prop({ type: Number })
+  phoneNumber: number;
+
+  @Prop({ default: false, type: Boolean })
+  isAccountVerified: boolean;
 
   @Prop({ default: false })
-  emailConfirmed: boolean;
-
-  @Prop({nullable: true})
-  emailConfirmedToken: string;
-  
-  @Prop({type: Date, nullable: true })
-  emailTokenExpiration: Date;
-
-  @Prop({ nullable: true, default: null })
-  resetPasswordToken: string;
-
-  @Prop({type: Date, nullable: true })
-  resetTokenExpiration: Date;
-
-  @Prop({ default: false })
-    suspended: boolean;
-
-    @Field(() => GraphQLTimestamp)
-    createdAt: Date;
-
-    @Field(() => GraphQLTimestamp)
-    updatedAt: Date;
-
-
+  isAccountSuspended: boolean;
 }
 
-export const PlannerSchema = SchemaFactory.createForClass(Planner)
+export const PlannerSchema = SchemaFactory.createForClass(Planner);

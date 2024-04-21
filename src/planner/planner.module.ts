@@ -1,24 +1,15 @@
 import { Module } from '@nestjs/common';
 import { PlannerResolver } from './planner.resolver';
 import { PlannerService } from './planner.service';
-import { ConfigService } from '@nestjs/config';
-import { MailService } from 'src/mail/mail.service';
-import {  plannerMongooseFeature, userMongooseFeature, vendorMongooseFeature } from 'src/common/mongoose/mongoose.connection';
-import { AuthModule } from 'src/auth/auth.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Planner, PlannerSchema } from './schema/planner.schema';
 
 @Module({
   imports: [
-    AuthModule,
-    userMongooseFeature,
-    vendorMongooseFeature,
-    plannerMongooseFeature,
+    MongooseModule.forFeature([{ name: Planner.name, schema: PlannerSchema }]),
   ],
-  providers: [PlannerResolver,
-    PlannerService,
-    ConfigService,
-    MailService
-  ],
+  providers: [PlannerResolver, PlannerService],
   exports: [PlannerService],
-  controllers: []
+  controllers: [],
 })
 export class PlannerModule {}

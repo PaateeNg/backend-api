@@ -1,29 +1,16 @@
 import { Module } from '@nestjs/common';
 import { UserResolver } from './user.resolver';
 import { UserService } from './user.service';
-import { JwtService } from '@nestjs/jwt';
-import { MailService } from 'src/mail/mail.service';
-import { ConfigService } from '@nestjs/config';
-import {  plannerMongooseFeature, userMongooseFeature, vendorMongooseFeature } from 'src/common/mongoose/mongoose.connection';
-import { AuthModule } from 'src/auth/auth.module';
 import { StatusResolver } from './status.resolver';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from './schema/user.schema';
 
 @Module({
   imports: [
-    AuthModule,
-    userMongooseFeature,
-    vendorMongooseFeature,
-    plannerMongooseFeature,
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
 
-  providers: [
-    UserResolver, 
-    UserService,
-    JwtService,
-    MailService,
-    ConfigService,
-    StatusResolver
-  ],
+  providers: [UserResolver, UserService, StatusResolver],
   exports: [UserService],
   controllers: [],
 })

@@ -9,7 +9,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 require('dotenv').config();
 
 export interface JwtPayload {
-  userId: string;
+  id: string;
 }
 
 @Injectable()
@@ -23,16 +23,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    const { userId } = payload;
-    try {
-      const user = await this.authService.getUserJwt(userId);
+    const { id } = payload;
+    const user = await this.authService.getUserJwt(id);
 
-      if (!user) {
-        throw new UnauthorizedException('Invalid Token');
-      }
-      return user;
-    } catch (error) {
-      throw new InternalServerErrorException('server error ');
+    if (!user) {
+      throw new UnauthorizedException('Invalid Token');
     }
+    return user;
   }
 }

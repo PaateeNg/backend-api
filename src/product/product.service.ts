@@ -39,6 +39,7 @@ export class ProductService {
       const newPrice = payload.price * 0.5;
 
       //image function will here
+
       const product = await this.productModel.create({
         ...payload,
         price: newPrice,
@@ -51,6 +52,9 @@ export class ProductService {
 
       return product;
     } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error.message;
+      }
       throw new InternalServerErrorException('Server Error');
     }
   }

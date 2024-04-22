@@ -12,15 +12,16 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
 import { returnString } from 'src/common/return/return.input';
 
-@Resolver((of) => Product)
+@Resolver()
 export class ProductResolver {
   constructor(private productService: ProductService) {}
 
   @Mutation((returns) => Product)
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.VENDOR)
+  //@Roles(Role.VENDOR)
   async create(
-    @Args('productInput') payload: CreateProductInput,
+    @Args('payload') payload: CreateProductInput,
     @GetCurrentGqlUser() vendor: VendorDocument,
   ): Promise<ProductDocument> {
     return this.productService.create(payload, vendor);

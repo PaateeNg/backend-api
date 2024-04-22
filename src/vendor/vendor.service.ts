@@ -25,8 +25,8 @@ export class VendorService {
       const hashedPassword = await hashed(password);
 
       const newVendor = await this.vendorModel.create({
-        password: hashedPassword,
         ...payload,
+        password: hashedPassword,
       });
 
       return newVendor;
@@ -104,20 +104,23 @@ export class VendorService {
   }
 
   async getById(id: string): Promise<VendorDocument> {
-    try {
-      const vendor = await this.vendorModel.findOne({
-        _id: id,
-        deleted: false,
-        approved: true,
-        suspended: false,
-      });
+    const vendor = await this.vendorModel.findOne({
+      _id: id,
+    });
 
-      if (!vendor) {
-        throw new NotFoundException('vendor not found');
-      }
-      return vendor;
-    } catch (error) {
-      throw new InternalServerErrorException('Server Error');
+    if (!vendor) {
+      throw new NotFoundException('vendor not found');
     }
+    return vendor;
+  }
+
+  async getByIdForGUse(id: string) {
+    const vendor = await this.vendorModel.findOne({
+      _id: id,
+    });
+    if (!vendor) {
+      return;
+    }
+    return vendor;
   }
 }

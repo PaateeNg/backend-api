@@ -2,44 +2,45 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { Vendor } from 'src/vendor/schema/vendor.schema';
+import { ProductCategory } from '../enum/product.enum';
 
 export type ProductDocument = Product & Document;
 @ObjectType()
 @Schema({ timestamps: true })
 export class Product {
   @Field()
-  @Prop()
+  @Prop({ type: String, required: true })
   productName: string;
 
   @Field()
-  @Prop()
+  @Prop({ type: String, required: true })
   makeBy: string;
 
-  @Field()
-  @Prop({ type: String, nullable: true })
-  category?: string;
+  @Field(() => String)
+  @Prop({ type: String, enum: ProductCategory, required: true })
+  category: ProductCategory;
 
   @Field()
-  @Prop({ type: Number, default: 0.0, required: true })
+  @Prop({ type: Number, required: true })
   price: number;
 
   @Field()
-  @Prop({ type: String })
+  @Prop({ type: String, required: true })
   productDescription?: string;
 
   @Field()
   @Prop({ type: String })
-  productImage?: string;
+  productImages?: string;
 
   @Field()
-  @Prop({ default: false })
+  @Prop({ type: Boolean, default: false })
   priceNegotiable: boolean;
 
   @Field()
-  @Prop({ default: false })
+  @Prop({ type: Boolean, default: false })
   isProductApproved: boolean;
 
-  @Prop({ default: false, type: Boolean })
+  @Prop({ type: Boolean, default: false })
   isDeleted: boolean;
 
   @Field(() => Vendor)

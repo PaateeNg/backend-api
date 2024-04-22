@@ -37,8 +37,8 @@ export class Planner {
   location: string;
 
   @Field(() => [String])
-  @Prop({ type: [String], enum: Role, default: Role.PLANNER })
-  plannerRole: Role[];
+  @Prop({ type: [String], enum: Role, default: Role.PLANNER, required: true })
+  role: Role[];
 
   @Field()
   @Prop({ type: String })
@@ -49,17 +49,17 @@ export class Planner {
   years_of_Experience?: string;
 
   @Field()
-  @Prop({ type: String, nullable: true })
+  @Prop({ type: String })
   profilePicture?: string;
 
   @Field()
   @Prop({ type: Number })
-  phoneNumber: number;
+  phoneNumber?: number;
 
   @Prop({ default: false, type: Boolean })
   isAccountVerified: boolean;
 
-  @Prop({ default: false })
+  @Prop({ type: Boolean, default: false })
   isAccountSuspended: boolean;
 }
 

@@ -26,42 +26,42 @@ export class AuthResolver {
 
   @Mutation((returns) => returnString)
   async createUser(
-    @Args('createUserInput') createUserInput: CreateUserInput,
+    @Args('payload') payload: CreateUserInput,
   ): Promise<returnString> {
-    return await this.authService.createUser(createUserInput);
+    return await this.authService.createUser(payload);
   }
 
   @Mutation((returns) => returnString)
   async loginUser(
-    @Args('loginInput') payload: LoginUserInput,
+    @Args('payload') payload: LoginUserInput,
   ): Promise<returnString> {
     return await this.authService.loginUser(payload);
   }
 
   @Mutation((returns) => returnString)
   async createVendor(
-    @Args('vendorInput') payload: VendorInput,
+    @Args('payload') payload: VendorInput,
   ): Promise<returnString> {
     return await this.authService.createVendor(payload);
   }
 
   @Mutation((returns) => returnString)
   async loginVendor(
-    @Args('loginInput') payload: LoginVendorInput,
+    @Args('payload') payload: LoginVendorInput,
   ): Promise<returnString> {
     return await this.authService.loginVendor(payload);
   }
 
   @Mutation((returns) => returnString)
   async createPlanner(
-    @Args('plannerInput') payload: PlanerInputDto,
+    @Args('payload') payload: PlanerInputDto,
   ): Promise<returnString> {
     return await this.authService.createPlanner(payload);
   }
 
   @Mutation((returns) => returnString)
   async loginPlanner(
-    @Args('loginInput') payload: LoginPlannerInput,
+    @Args('payload') payload: LoginPlannerInput,
   ): Promise<returnString> {
     return await this.authService.loginPlanner(payload);
   }
@@ -69,7 +69,7 @@ export class AuthResolver {
   @Mutation((returns) => returnString)
   @UseGuards(GqlAuthGuard)
   async changePassword(
-    @Args('changePasswordPayload') payload: ChangePasswordDto,
+    @Args('payload') payload: ChangePasswordDto,
     @GetCurrentGqlUser()
     currentUser: UserDocument | VendorDocument | PlannerDocument,
   ) {
@@ -78,21 +78,21 @@ export class AuthResolver {
 
   @Mutation((returns) => returnString)
   async forgotPassword(
-    @Args('password') payload: ForgetPasswordDTO,
+    @Args('payload') payload: ForgetPasswordDTO,
   ): Promise<returnString> {
     return await this.authService.forgotPassword(payload);
   }
 
   @Mutation((returns) => returnString)
   async resetPassword(
-    @Args('resetPasswordPayload') payload: ResetPasswordDTO,
+    @Args('payload') payload: ResetPasswordDTO,
   ): Promise<returnString> {
     return await this.authService.resetPassword(payload);
   }
 
   @Mutation((returns) => returnString)
   async accountVerification(
-    @Args('accountVerificationPayload') payload: VerifyAccountDto,
+    @Args('payload') payload: VerifyAccountDto,
   ): Promise<returnString> {
     return await this.authService.verifyAccount(payload);
   }

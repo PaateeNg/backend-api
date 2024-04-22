@@ -1,5 +1,13 @@
 import { Field, InputType, PartialType } from '@nestjs/graphql';
-import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+} from 'class-validator';
+import { ProductCategory } from '../enum/product.enum';
+import { Transform } from 'class-transformer';
 
 @InputType()
 export class CreateProductInput {
@@ -19,16 +27,17 @@ export class CreateProductInput {
   productDescription: string;
 
   @Field()
-  @IsString()
-  category: string;
+  @IsNotEmpty()
+  @IsEnum(ProductCategory)
+  category: ProductCategory;
 
   @Field()
   @IsNumber()
+  @Transform(({ value }) => parseFloat(value.trim()))
   @IsNotEmpty()
   price: number;
 
   @Field()
-  @IsNotEmpty()
   @IsBoolean()
   priceNegotiable: boolean;
 }

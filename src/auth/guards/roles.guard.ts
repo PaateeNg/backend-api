@@ -7,7 +7,7 @@ import { Role } from 'src/common/enum/role.enum';
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const roles = this.reflector.get<Role[]>('roles', context.getHandler());
     if (!roles) {
       return true;
@@ -19,16 +19,17 @@ export class RolesGuard implements CanActivate {
 
     //you might need to implement graphql here for it to work on graphql
 
-    // console.log(user.role)
+    // console.log(user.role);
 
-    return isRoleMatched(roles, user.role);
+    return await isRoleMatched(roles, user.role);
     //the user.role is coming from database based on the user role
   }
 }
 
-const isRoleMatched = (roles, userRole) => {
-  if (!roles.includes(userRole)) {
+const isRoleMatched = async (roles, userRole) => {
+  if (!roles.some((role) => userRole.includes(role))) {
     return false;
   }
+
   return true;
 };

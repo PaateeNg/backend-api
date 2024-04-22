@@ -28,8 +28,8 @@ export class User {
   password: string;
 
   @Field(() => [String])
-  @Prop({ type: String, enum: Role, default: Role.USER })
-  userRole: Role;
+  @Prop({ type: String, enum: Role, default: Role.USER, required: true })
+  role: Role;
 
   @Field()
   @Prop({ type: Boolean, default: false })

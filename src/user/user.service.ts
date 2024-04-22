@@ -24,8 +24,8 @@ export class UserService {
       const hashedPassword = await hashed(password);
 
       const newUser = await this.userModel.create({
-        password: hashedPassword,
         ...payload,
+        password: hashedPassword,
       });
 
       return newUser;
@@ -38,19 +38,27 @@ export class UserService {
 
   async getAll(): Promise<UserDocument[]> {
     return await this.userModel.find({
-      deleted: false,
-      suspended: false,
+      isDeleted: false,
+      isAccountSuspended: false,
     });
   }
 
-  async getById(id: string) {
+  async getById(id: string): Promise<UserDocument> {
     const user = await this.userModel.findOne({
       _id: id,
-      suspended: false,
-      deleted: false,
     });
     if (!user) {
       throw new NotFoundException('user not found');
+    }
+    return user;
+  }
+
+  async getByIdForGUse(id: string) {
+    const user = await this.userModel.findOne({
+      _id: id,
+    });
+    if (!user) {
+      return;
     }
     return user;
   }

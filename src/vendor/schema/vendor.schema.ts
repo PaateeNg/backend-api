@@ -28,8 +28,8 @@ export class Vendor {
   businessName: string;
 
   @Field(() => [String])
-  @Prop({ type: [String], enum: Role, default: Role.VENDOR })
-  vendorRole: Role[];
+  @Prop({ type: [String], enum: Role, default: Role.VENDOR, required: true })
+  role: Role[];
 
   @Field()
   @Prop({ default: false, type: Boolean })
@@ -53,14 +53,16 @@ export class Vendor {
 
   @Field()
   @Prop({ type: String })
-  profilePicture?: string;
+  profilePhoto?: string;
 
   @Field()
   @Prop({ type: String })
   businessPhone?: string;
 
   @Field(() => [String])
-  @Prop([{ type: [mongoose.Schema.Types.ObjectId], ref: 'Product' }])
+  @Prop([
+    { type: [mongoose.Schema.Types.ObjectId], ref: 'Product', default: [] },
+  ])
   productMenu?: mongoose.Types.ObjectId[];
 
   @Prop({ default: false, type: Boolean })

@@ -26,6 +26,7 @@ import {
   ResetPasswordDTO,
   VerifyAccountDto,
 } from './input-dto/auth-input.dto';
+import { GraphQLError } from 'graphql';
 
 @Injectable()
 export class AuthService {
@@ -39,93 +40,116 @@ export class AuthService {
   async createUser(payload: CreateUserInput) {
     const { email, phoneNumber } = payload;
 
-    const userExist = await this.userService.getByEmailOrPhoneNumber(
-      email,
-      phoneNumber,
-    );
+    try {
+      const userExist = await this.userService.getByEmailOrPhoneNumber(
+        email,
+        phoneNumber,
+      );
 
-    if (userExist) {
-      throw new BadRequestException('User with the same email already exists');
+      if (userExist) {
+        throw new Error('User with the same email and phone already exists');
+      }
+
+      await this.userService.createUser(payload);
+
+      return {
+        Response: 'User Sign Up Successfully, Kindly Verify Your Account',
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { Response: error.message };
+      }
+      throw new InternalServerErrorException('Server Error');
     }
-
-    await this.userService.createUser(payload);
-
-    return {
-      Response: 'User Sign Up Successfully, Kindly Verify Your Account',
-    };
   }
 
   async loginUser(payload: LoginUserInput): Promise<returnString> {
-    const { email, password } = payload;
-    const user = await this.userService.getByEmail(email);
+    try {
+      const { email, password } = payload;
+      const user = await this.userService.getByEmail(email);
 
-    if ((await comparePassword(password, user.password)) === false) {
-      throw new BadRequestException('your password is incorrect');
+      if ((await comparePassword(password, user.password)) === false) {
+        throw new Error('your password is incorrect');
+      }
+
+      return await this.jwtToken(user);
+    } catch (error) {
+      if (error instanceof Error) {
+        return { Response: error.message };
+      }
+      throw new InternalServerErrorException('Server Error');
     }
-
-    const jwtPayload = {
-      user: user._id,
-    };
-
-    return {
-      Response: this.jwtService.sign(jwtPayload),
-    };
   }
 
   async createVendor(payload: VendorInput) {
     const { email, businessName } = payload;
 
-    const vendorExist = await this.vendorService.getByEmailOrBusinessName(
-      email,
-      businessName,
-    );
+    try {
+      const vendorExist = await this.vendorService.getByEmailOrBusinessName(
+        email,
+        businessName,
+      );
 
-    if (vendorExist) {
-      throw new BadRequestException('Vendor Already Exist');
+      if (vendorExist) {
+        throw new Error('Vendor Already Exist');
+      }
+
+      await this.vendorService.createVendor(payload);
+
+      return {
+        Response: 'Vendor Sign Up Successfully, Kindly Verify Your Account',
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { Response: error.message };
+      }
+      throw new InternalServerErrorException('Server Error');
     }
-
-    await this.vendorService.createVendor(payload);
-
-    return {
-      Response: 'Vendor Sign Up Successfully, Kindly Verify Your Account',
-    };
   }
 
   async loginVendor(payload: LoginVendorInput): Promise<returnString> {
     const { email, password } = payload;
-    const vendor = await this.vendorService.getByEmail(email);
+    try {
+      const vendor = await this.vendorService.getByEmail(email);
 
-    if ((await comparePassword(password, vendor.password)) === false) {
-      throw new BadRequestException('Incorrect Password');
+      if ((await comparePassword(password, vendor.password)) === false) {
+        throw new Error('Incorrect Password');
+      }
+
+      return await this.jwtToken(vendor);
+    } catch (error) {
+      if (error instanceof Error) {
+        return { Response: error.message };
+      }
+      throw new InternalServerErrorException('Server Error');
     }
-
-    const jwtPayload = {
-      user: vendor._id,
-    };
-
-    return {
-      Response: this.jwtService.sign(jwtPayload),
-    };
   }
 
   async createPlanner(payload: PlanerInputDto) {
     const { email, businessName } = payload;
 
-    const plannerExist =
-      await this.plannerService.getVendorByEmailOrBusinessName(
-        email,
-        businessName,
-      );
+    try {
+      const plannerExist =
+        await this.plannerService.getVendorByEmailOrBusinessName(
+          email,
+          businessName,
+        );
 
-    if (plannerExist) {
-      throw new BadRequestException('Planner Already Exist');
+      if (plannerExist) {
+        throw new Error('Planner Already Exist');
+      }
+
+      await this.plannerService.createPlanner(payload);
+
+      return {
+        Response: 'Planner Sign Up Success, Kindly Verify Your Account',
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { Response: error.message };
+      }
+      throw new InternalServerErrorException('Server Error');
     }
-
-    await this.plannerService.createPlanner(payload);
-
-    return {
-      Response: 'Planner Sign Up Success, Kindly Verify Your Account',
-    };
   }
 
   async loginPlanner(payload: LoginPlannerInput): Promise<returnString> {
@@ -136,32 +160,23 @@ export class AuthService {
       throw new BadRequestException('your password is incorrect');
     }
 
-    const jwtPayload = {
-      id: planner._id,
-      firstName: planner.firstName,
-    };
-
-    return {
-      Response: this.jwtService.sign(jwtPayload),
-    };
+    return await this.jwtToken(planner);
   }
 
-  async getUserJwt(id: string) {
-    const [user, planner, vendor] = await Promise.all([
-      await this.userService.getById(id),
-      await this.plannerService.getById(id),
-      await this.vendorService.getById(id),
+  async getUserJwt(userId: string) {
+    const [vendor, user, planner] = await Promise.all([
+      this.vendorService.getByIdForGUse(userId),
+      this.userService.getByIdForGUse(userId),
+      this.plannerService.getByIdForGUse(userId),
     ]);
 
-    if (user) {
-      return user;
+    const iUser = user || planner || vendor;
+
+    if (!iUser) {
+      throw new Error('Invalid User Token');
     }
-    if (planner) {
-      return planner;
-    }
-    if (vendor) {
-      return vendor;
-    }
+
+    return iUser;
   }
 
   async changePassword(
@@ -253,6 +268,16 @@ export class AuthService {
 
     return {
       Response: 'Account is Now Verified',
+    };
+  }
+
+  async jwtToken(payload: any) {
+    const jwtPayload = {
+      id: payload._id,
+    };
+
+    return {
+      Response: this.jwtService.sign(jwtPayload),
     };
   }
 }

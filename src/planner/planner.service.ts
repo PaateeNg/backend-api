@@ -25,8 +25,8 @@ export class PlannerService {
       const hashedPassword = await hashed(password);
 
       const savedPlanner = await this.plannerModel.create({
-        password: hashedPassword,
         ...payload,
+        password: hashedPassword,
       });
       return savedPlanner;
     } catch (error) {
@@ -83,27 +83,28 @@ export class PlannerService {
   }
 
   async getAllPlanner() {
-    return await this.plannerModel.find({
-      suspended: false,
-      approved: true,
-    });
+    return await this.plannerModel.find({});
   }
 
-  async getById(id: string) {
-    try {
-      const planner = await this.plannerModel.findOne({
-        _id: id,
-        suspended: false,
-        approved: true,
-      });
+  async getById(id: string): Promise<PlannerDocument> {
+    const planner = await this.plannerModel.findOne({
+      _id: id,
+    });
 
-      if (!planner) {
-        throw new NotFoundException('planner not found');
-      }
-
-      return planner;
-    } catch (error) {
-      throw new InternalServerErrorException('Server Error');
+    if (!planner) {
+      throw new NotFoundException('planner not found');
     }
+
+    return planner;
+  }
+
+  async getByIdForGUse(id: string) {
+    const planner = await this.plannerModel.findOne({
+      _id: id,
+    });
+    if (!planner) {
+      return;
+    }
+    return planner;
   }
 }

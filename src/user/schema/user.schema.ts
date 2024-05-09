@@ -4,22 +4,27 @@ import { Document } from 'mongoose';
 import { Role } from 'src/common/enum/role.enum';
 
 export type UserDocument = User & Document;
+
 @ObjectType()
 @Schema({ timestamps: true })
 export class User {
-  @Field()
-  @Prop({ type: String, required: true })
-  firstName: string;
+  @Field({ nullable: true })
+  @Prop({ type: String })
+  firstName?: string;
 
-  @Field()
-  @Prop({ type: String, required: true })
-  lastName: string;
+  @Field({ nullable: true })
+  @Prop({ type: String })
+  lastName?: string;
+
+  @Field({ nullable: true })
+  @Prop({ type: Boolean, required: true, default: false })
+  isUser: boolean;
 
   @Field()
   @Prop({ type: String, unique: true, required: true })
   email: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Prop({ type: Number, unique: true })
   phoneNumber: number;
 

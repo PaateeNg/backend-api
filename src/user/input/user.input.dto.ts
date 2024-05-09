@@ -6,23 +6,9 @@ import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 @InputType()
 export class CreateUserInput {
   @Field()
-  @IsNotEmpty()
-  @IsString()
-  firstName: string;
-
-  @Field()
-  @IsNotEmpty()
-  @IsString()
-  lastName: string;
-
-  @Field()
   @IsEmail()
   @IsNotEmpty()
   email: string;
-
-  @Field()
-  @IsNotEmpty()
-  phoneNumber: number;
 
   @Field()
   @IsNotEmpty()
@@ -31,11 +17,11 @@ export class CreateUserInput {
 }
 
 @InputType()
-export class UpdateUserDto extends PartialType(CreateUserInput) {
-  @Exclude()
+export class UpdateUserDto {
+  @Field()
   email: string;
 
-  @Exclude()
+  @Field()
   password: string;
 }
 

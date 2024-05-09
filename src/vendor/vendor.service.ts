@@ -50,7 +50,7 @@ export class VendorService {
     const vendorExist = await this.vendorModel.findOne({ email: email });
 
     if (!vendorExist) {
-      throw new NotFoundException('Vendor Not Found');
+      return;
     }
 
     return vendorExist;

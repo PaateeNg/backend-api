@@ -16,6 +16,10 @@ export class Planner {
   @Prop()
   firstName: string;
 
+  @Field({ nullable: true })
+  @Prop({ type: Boolean, required: true, default: false })
+  isPlanner: boolean;
+
   @Field()
   @Prop()
   lastName: string;

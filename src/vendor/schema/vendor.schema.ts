@@ -19,6 +19,10 @@ export class Vendor {
   @Prop()
   lastName: string;
 
+  @Field({ nullable: true })
+  @Prop({ type: Boolean, required: true, default: false })
+  isVendor: boolean;
+
   @Field()
   @Prop()
   password: string;

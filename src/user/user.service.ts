@@ -10,30 +10,34 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schema/user.schema';
 import { Model } from 'mongoose';
 import { returnString } from 'src/common/return/return.input';
+import { OtpService } from 'src/otp/service/otp.service';
+import { OtpEnumType } from 'src/otp/enum/otp.enum';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
+    private otpService: OtpService,
   ) {}
 
   async createUser(payload: CreateUserInput) {
-    const { password } = payload;
-    try {
-      const hashedPassword = await hashed(password);
+    const { password, email } = payload;
 
-      const newUser = await this.userModel.create({
-        ...payload,
-        password: hashedPassword,
-      });
+    const hashedPassword = await hashed(password);
 
-      return newUser;
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'Server error while creating your account',
-      );
-    }
+    const newUser = await this.userModel.create({
+      ...payload,
+      password: hashedPassword,
+      isUser: true,
+    });
+
+    await this.otpService.sendOtp({
+      email: email,
+      type: OtpEnumType.AccountVerification,
+    });
+
+    return newUser;
   }
 
   async getAll(): Promise<UserDocument[]> {
@@ -79,7 +83,7 @@ export class UserService {
   async getByEmail(email: string): Promise<UserDocument> {
     const user = await this.userModel.findOne({ email: email });
     if (!user) {
-      throw new NotFoundException('User Not Found');
+      return;
     }
 
     return user;

@@ -34,7 +34,7 @@ export class PlannerService {
     }
   }
 
-  async getVendorByEmailOrBusinessName(email: string, businessName: string) {
+  async getPlanerByEmailOrBusinessName(email: string, businessName: string) {
     const plannerExist = await this.plannerModel.findOne({
       email: email,
       businessName: businessName,
@@ -49,7 +49,8 @@ export class PlannerService {
   async getByEmail(email: string): Promise<PlannerDocument> {
     const planner = await this.plannerModel.findOne({ email: email });
     if (!planner) {
-      throw new NotFoundException('Planner Not Found');
+      return;
+      //throw new NotFoundException('Planner Not Found');
     }
 
     return planner;

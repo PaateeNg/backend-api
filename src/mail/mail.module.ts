@@ -1,11 +1,25 @@
 import { Module } from '@nestjs/common';
-import { MailService } from './mail.service';
-import { ConfigService } from '@nestjs/config';
-
+import { MailerModule } from '@nestjs-modules/mailer';
+import { ENVIRONMENT } from 'src/common/constant/environment/env.variable';
+import { EmailService } from './mail.service';
 @Module({
-  imports: [],
-  providers: [MailService, ConfigService],
-  exports: [MailService],
+  imports: [
+    MailerModule.forRoot({
+      transport: {
+        service: 'gmail',
+        auth: {
+          user: ENVIRONMENT.SMTP.MAIL_USER,
+          pass: ENVIRONMENT.SMTP.MAIL_PASSWORD,
+        },
+      },
+
+      defaults: {
+        from: '"No Reply" <noreply@patee.ng>',
+      },
+    }),
+  ],
   controllers: [],
+  providers: [EmailService],
+  exports: [EmailService],
 })
 export class MailModule {}

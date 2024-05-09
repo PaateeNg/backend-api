@@ -11,6 +11,7 @@ import { ProductModule } from './product/product.module';
 import { MailModule } from './mail/mail.module';
 import { CartModule } from './cart/cart.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { OtpModule } from './otp/module/otp.module';
 
 require('dotenv').config();
 
@@ -19,11 +20,10 @@ require('dotenv').config();
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-
+    //code first approach
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
-      installSubscriptionHandlers: true,
     }),
 
     MongooseModule.forRootAsync({
@@ -40,6 +40,7 @@ require('dotenv').config();
     MailModule,
     BookingModule,
     CartModule,
+    OtpModule,
   ],
 })
 export class AppModule {}

@@ -38,13 +38,10 @@ export class AuthService {
   ) {}
 
   async createUser(payload: CreateUserInput) {
-    const { email, phoneNumber } = payload;
-
     try {
-      const userExist = await this.userService.getByEmailOrPhoneNumber(
-        email,
-        phoneNumber,
-      );
+      const { email } = payload;
+
+      const userExist = await this.userService.getByEmail(email);
 
       if (userExist) {
         throw new Error('User with the same email and phone already exists');
@@ -68,6 +65,10 @@ export class AuthService {
       const { email, password } = payload;
       const user = await this.userService.getByEmail(email);
 
+      if (!user) {
+        throw new Error('Invalid User Credential');
+      }
+
       if ((await comparePassword(password, user.password)) === false) {
         throw new Error('your password is incorrect');
       }
@@ -82,13 +83,10 @@ export class AuthService {
   }
 
   async createVendor(payload: VendorInput) {
-    const { email, businessName } = payload;
+    const { email } = payload;
 
     try {
-      const vendorExist = await this.vendorService.getByEmailOrBusinessName(
-        email,
-        businessName,
-      );
+      const vendorExist = await this.vendorService.getByEmail(email);
 
       if (vendorExist) {
         throw new Error('Vendor Already Exist');
@@ -130,7 +128,7 @@ export class AuthService {
 
     try {
       const plannerExist =
-        await this.plannerService.getVendorByEmailOrBusinessName(
+        await this.plannerService.getPlanerByEmailOrBusinessName(
           email,
           businessName,
         );
@@ -186,10 +184,6 @@ export class AuthService {
     const { newPassword, oldPassword } = payload;
 
     try {
-      if (!currentUser) {
-        throw new UnauthorizedException('User not found');
-      }
-
       if (currentUser.isAccountSuspended) {
         throw new UnauthorizedException(
           'Your account is suspended. Please contact support.',
@@ -203,6 +197,7 @@ export class AuthService {
       }
 
       currentUser.password = await hashed(newPassword);
+
       await currentUser.save();
 
       return { Response: 'Password changed successfully.' };
@@ -221,6 +216,7 @@ export class AuthService {
     ]);
 
     if (user || vendor || planner) {
+      //implement otp service here
       return {
         Response: 'Otp Sent',
       };

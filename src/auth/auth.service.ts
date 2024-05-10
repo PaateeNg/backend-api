@@ -27,6 +27,8 @@ import {
   VerifyAccountDto,
 } from './input-dto/auth-input.dto';
 import { GraphQLError } from 'graphql';
+import { OtpService } from 'src/otp/service/otp.service';
+import { OtpEnumType } from 'src/otp/enum/otp.enum';
 
 @Injectable()
 export class AuthService {
@@ -35,6 +37,7 @@ export class AuthService {
     private plannerService: PlannerService,
     private vendorService: VendorService,
     private jwtService: JwtService,
+    private otpService: OtpService,
   ) {}
 
   async createUser(payload: CreateUserInput) {
@@ -44,7 +47,18 @@ export class AuthService {
       const userExist = await this.userService.getByEmail(email);
 
       if (userExist) {
-        throw new Error('User with the same email and phone already exists');
+        if (!userExist.isAccountVerified) {
+          await this.otpService.sendOtp({
+            email: userExist.email,
+            type: OtpEnumType.AccountVerification,
+          });
+
+          return {
+            Response: 'User Sign Up Successfully, Kindly Verify Your Account',
+          };
+        } else if (userExist.isAccountVerified) {
+          throw new Error('User with the same email and phone already exists');
+        }
       }
 
       await this.userService.createUser(payload);
@@ -73,6 +87,10 @@ export class AuthService {
         throw new Error('your password is incorrect');
       }
 
+      if (!user.isAccountVerified) {
+        throw new Error('You have to verify your account before logging in');
+      }
+
       return await this.jwtToken(user);
     } catch (error) {
       if (error instanceof Error) {
@@ -89,7 +107,18 @@ export class AuthService {
       const vendorExist = await this.vendorService.getByEmail(email);
 
       if (vendorExist) {
-        throw new Error('Vendor Already Exist');
+        if (!vendorExist.isAccountVerified) {
+          await this.otpService.sendOtp({
+            email: vendorExist.email,
+            type: OtpEnumType.AccountVerification,
+          });
+
+          return {
+            Response: 'Vendor Sign Up Successfully, Kindly Verify Your Account',
+          };
+        } else if (vendorExist.isAccountVerified) {
+          throw new Error('Vendor Already Exist');
+        }
       }
 
       await this.vendorService.createVendor(payload);

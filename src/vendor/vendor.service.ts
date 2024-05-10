@@ -11,22 +11,30 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Vendor, VendorDocument } from './schema/vendor.schema';
 import { Model } from 'mongoose';
 import { returnString } from 'src/common/return/return.input';
+import { OtpService } from 'src/otp/service/otp.service';
+import { OtpEnumType } from 'src/otp/enum/otp.enum';
 
 @Injectable()
 export class VendorService {
   constructor(
     @InjectModel(Vendor.name)
     private vendorModel: Model<VendorDocument>,
+    private otpService: OtpService,
   ) {}
 
   async createVendor(payload: VendorInput) {
-    const { password } = payload;
+    const { password, email } = payload;
     try {
       const hashedPassword = await hashed(password);
 
       const newVendor = await this.vendorModel.create({
         ...payload,
         password: hashedPassword,
+      });
+
+      await this.otpService.sendOtp({
+        email: email,
+        type: OtpEnumType.AccountVerification,
       });
 
       return newVendor;

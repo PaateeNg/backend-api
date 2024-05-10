@@ -8,27 +8,27 @@ export type VendorDocument = Vendor & Document;
 @Schema({ timestamps: true })
 export class Vendor {
   @Field()
-  @Prop()
+  @Prop({ type: String, required: true, unique: true })
   email: string;
 
-  @Field()
-  @Prop()
-  firstName: string;
+  @Field({ nullable: true })
+  @Prop({ type: String })
+  firstName?: string;
 
-  @Field()
-  @Prop()
-  lastName: string;
+  @Field({ nullable: true })
+  @Prop({ type: String })
+  lastName?: string;
 
   @Field({ nullable: true })
   @Prop({ type: Boolean, required: true, default: false })
   isVendor: boolean;
 
   @Field()
-  @Prop()
+  @Prop({ type: String })
   password: string;
 
-  @Field()
-  @Prop()
+  @Field({ nullable: true })
+  @Prop({ type: String })
   businessName: string;
 
   @Field(() => [String])
@@ -43,27 +43,27 @@ export class Vendor {
   @Prop({ default: false, type: Boolean })
   isDeleted: boolean;
 
-  @Field()
+  @Field({ nullable: true })
   @Prop({ type: String })
   location?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Prop({ type: String })
   category?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Prop({ type: String })
   years_of_Experience?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Prop({ type: String })
   profilePhoto?: string;
 
   @Field()
-  @Prop({ type: String })
-  businessPhone?: string;
+  @Prop({ type: Number })
+  phoneNumber?: number;
 
-  @Field(() => [String])
+  @Field(() => [String], { nullable: true })
   @Prop([
     { type: [mongoose.Schema.Types.ObjectId], ref: 'Product', default: [] },
   ])

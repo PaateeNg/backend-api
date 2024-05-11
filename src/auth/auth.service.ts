@@ -333,25 +333,41 @@ export class AuthService {
   }
 
   async verifyAccount(payload: VerifyAccountDto): Promise<returnString> {
-    const { email, code } = payload;
+    const { email, code, userType } = payload;
+    try {
+      let user: any;
 
-    const [user, vendor, planner] = await Promise.all([
-      this.userService.getByEmail(email),
-      this.vendorService.getByEmail(email),
-      this.plannerService.getByEmail(email),
-    ]);
+      if (userType === forgotPasswordUserType.IsUser) {
+        user = await this.userService.getByEmail(email);
+      }
 
-    // await this.optService.verifyOtp({email, code, type: OtpEnumType.VerifyAccount});
+      if (userType === forgotPasswordUserType.Vendor) {
+        user = await this.vendorService.getByEmail(email);
+      }
 
-    const iUser = user || vendor || planner;
+      if (userType === forgotPasswordUserType.IsPlanner) {
+        user = await this.plannerService.getByEmail(email);
+      }
 
-    iUser.isAccountVerified = true;
+      await this.otpService.verifyOtp({
+        email,
+        code,
+        type: OtpEnumType.AccountVerification,
+      });
 
-    await iUser.save();
+      user.isAccountVerified = true;
 
-    return {
-      Response: 'Account is Now Verified',
-    };
+      await user.save();
+
+      return {
+        Response: 'Account is Now Verified',
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { Response: error.message };
+      }
+      throw new InternalServerErrorException('Server Error');
+    }
   }
 
   async jwtToken(payload: any) {

@@ -69,4 +69,9 @@ export class VerifyAccountDto {
   @IsNotEmpty()
   @IsNumber()
   code: number;
+
+  @Field()
+  @IsNotEmpty()
+  @IsEnum(forgotPasswordUserType)
+  userType: forgotPasswordUserType;
 }

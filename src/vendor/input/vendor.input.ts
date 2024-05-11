@@ -1,6 +1,6 @@
 import { Field, InputType, PartialType } from '@nestjs/graphql';
 import { Exclude } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 @InputType()
 export class VendorInput {
@@ -9,20 +9,20 @@ export class VendorInput {
   @IsEmail()
   email: string;
 
-  @Field()
-  @IsNotEmpty()
-  @IsString()
-  businessName: string;
+  // @Field()
+  // @IsNotEmpty()
+  // @IsString()
+  // businessName: string;
 
-  @Field()
-  @IsNotEmpty()
-  @IsString()
-  firstName: string;
+  // @Field()
+  // @IsNotEmpty()
+  // @IsString()
+  // firstName: string;
 
-  @Field()
-  @IsNotEmpty()
-  @IsString()
-  lastName: string;
+  // @Field()
+  // @IsNotEmpty()
+  // @IsString()
+  // lastName: string;
 
   @Field()
   @IsNotEmpty()
@@ -32,12 +32,11 @@ export class VendorInput {
 }
 
 @InputType()
-export class UpdateVendorDto extends PartialType(VendorInput) {
-  @Exclude()
-  email: string;
-
-  @Exclude()
-  password: string;
+export class UpdateVendorDto {
+  @Field()
+  @IsOptional()
+  @IsString()
+  lastName: string;
 }
 
 @InputType()

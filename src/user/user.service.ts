@@ -23,21 +23,25 @@ export class UserService {
 
   async createUser(payload: CreateUserInput) {
     const { password, email } = payload;
+    try {
+      const hashedPassword = await hashed(password);
 
-    const hashedPassword = await hashed(password);
+      const newUser = await this.userModel.create({
+        ...payload,
+        password: hashedPassword,
+        isUser: true,
+      });
 
-    const newUser = await this.userModel.create({
-      ...payload,
-      password: hashedPassword,
-      isUser: true,
-    });
+      await this.otpService.sendOtp({
+        email: email,
+        type: OtpEnumType.AccountVerification,
+      });
 
-    await this.otpService.sendOtp({
-      email: email,
-      type: OtpEnumType.AccountVerification,
-    });
-
-    return newUser;
+      return newUser;
+    } catch (error) {
+      console.log('Error', error);
+      throw new InternalServerErrorException('Server Error');
+    }
   }
 
   async getAll(): Promise<UserDocument[]> {

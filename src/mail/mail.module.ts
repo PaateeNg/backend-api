@@ -14,7 +14,7 @@ import { EmailService } from './mail.service';
       },
 
       defaults: {
-        from: '"No Reply" <noreply@patee.ng>',
+        from: '"No Reply" <noreply@paateeng.com>',
       },
     }),
   ],

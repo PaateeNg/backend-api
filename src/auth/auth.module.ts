@@ -12,6 +12,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from 'src/user/user.module';
 import { PlannerModule } from 'src/planner/planner.module';
 import { VendorModule } from 'src/vendor/vendor.module';
+import { OtpModule } from 'src/otp/module/otp.module';
 require('dotenv').config();
 
 @Module({
@@ -20,6 +21,7 @@ require('dotenv').config();
     PlannerModule,
     VendorModule,
     PassportModule,
+    OtpModule,
     PassportModule.register({
       global: true,
       defaultStrategy: 'jwt',

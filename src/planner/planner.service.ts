@@ -27,6 +27,7 @@ export class PlannerService {
       const savedPlanner = await this.plannerModel.create({
         ...payload,
         password: hashedPassword,
+        isPlanner: true,
       });
       return savedPlanner;
     } catch (error) {
@@ -50,9 +51,7 @@ export class PlannerService {
     const planner = await this.plannerModel.findOne({ email: email });
     if (!planner) {
       return;
-      //throw new NotFoundException('Planner Not Found');
     }
-
     return planner;
   }
 

@@ -9,54 +9,54 @@ export type PlannerDocument = Planner & Document;
 @Schema({ timestamps: true })
 export class Planner {
   @Field()
-  @Prop({ type: String, unique: true })
+  @Prop({ type: String, unique: true, required: true })
   email: string;
 
-  @Field()
-  @Prop()
-  firstName: string;
+  @Field({ nullable: true })
+  @Prop({ type: String })
+  firstName?: string;
 
   @Field({ nullable: true })
   @Prop({ type: Boolean, required: true, default: false })
   isPlanner: boolean;
 
-  @Field()
-  @Prop()
-  lastName: string;
+  @Field({ nullable: true })
+  @Prop({ type: String })
+  lastName?: string;
 
-  @Field()
-  @Prop()
+  @Field({ nullable: true })
+  @Prop({ type: String })
   password: string;
 
-  @Field()
-  @Prop()
-  businessName: string;
+  @Field({ nullable: true })
+  @Prop({ type: String })
+  businessName?: string;
 
   @Field()
   @Prop({ default: false })
   isPlannerApproved: boolean;
 
-  @Field()
-  @Prop()
-  location: string;
+  @Field({ nullable: true })
+  @Prop({ type: String })
+  location?: string;
 
   @Field(() => [String])
   @Prop({ type: [String], enum: Role, default: Role.PLANNER, required: true })
   role: Role[];
 
-  @Field()
+  @Field({ nullable: true })
   @Prop({ type: String })
   categories?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Prop({ type: String })
   years_of_Experience?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Prop({ type: String })
   profilePicture?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Prop({ type: Number })
   phoneNumber?: number;
 

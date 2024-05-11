@@ -1,5 +1,13 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsEmail, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  isEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+} from 'class-validator';
+import { forgotPasswordUserType } from '../enum/auth.enum';
 
 @InputType()
 export class ChangePasswordDto {
@@ -20,6 +28,11 @@ export class ForgetPasswordDTO {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsEnum(forgotPasswordUserType)
+  userType: forgotPasswordUserType;
 }
 
 @InputType()
@@ -38,6 +51,11 @@ export class ResetPasswordDTO {
   @IsNotEmpty()
   @IsString()
   newPassword: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsEnum(forgotPasswordUserType)
+  userType: forgotPasswordUserType;
 }
 
 @InputType()

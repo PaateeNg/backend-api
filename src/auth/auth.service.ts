@@ -29,6 +29,7 @@ import {
 import { GraphQLError } from 'graphql';
 import { OtpService } from 'src/otp/service/otp.service';
 import { OtpEnumType } from 'src/otp/enum/otp.enum';
+import { forgotPasswordUserType } from './enum/auth.enum';
 
 @Injectable()
 export class AuthService {
@@ -251,23 +252,27 @@ export class AuthService {
   }
 
   async forgotPassword(payload: ForgetPasswordDTO): Promise<returnString> {
-    const { email } = payload;
+    const { email, userType } = payload;
 
     try {
-      const [user, vendor, planner] = await Promise.all([
-        this.userService.getByEmail(email),
-        this.vendorService.getByEmail(email),
-        this.plannerService.getByEmail(email),
-      ]);
+      let user: any;
+      if (userType === forgotPasswordUserType.IsUser) {
+        user = await this.userService.getByEmail(email);
+      }
 
-      console.log('user', user);
-      console.log('vendor', vendor);
-      console.log('planner', planner);
+      if (userType === forgotPasswordUserType.Vendor) {
+        user = await this.vendorService.getByEmail(email);
+      }
 
-      if (!user || !vendor || planner) {
+      if (userType === forgotPasswordUserType.IsPlanner) {
+        user = await this.plannerService.getByEmail(email);
+      }
+
+      if (!user) {
         throw new Error('Invalid email');
       }
-      if (user || vendor || planner) {
+
+      if (user) {
         await this.otpService.sendOtp({
           email: email,
           type: OtpEnumType.ResetPassword,
@@ -285,25 +290,46 @@ export class AuthService {
   }
 
   async resetPassword(payload: ResetPasswordDTO) {
-    const { email, newPassword, code } = payload;
+    const { email, newPassword, code, userType } = payload;
 
-    const [user, vendor, planner] = await Promise.all([
-      this.userService.getByEmail(email),
-      this.vendorService.getByEmail(email),
-      this.plannerService.getByEmail(email),
-    ]);
+    try {
+      let user: any;
 
-    // await this.optService.verifyOtp({email, code, type: OtpEnumType.ResetPassword})
+      if (userType === forgotPasswordUserType.IsUser) {
+        user = await this.userService.getByEmail(email);
+      }
 
-    const iUser = user || vendor || planner;
+      if (userType === forgotPasswordUserType.Vendor) {
+        user = await this.vendorService.getByEmail(email);
+      }
 
-    iUser.password = await hashed(newPassword);
+      if (userType === forgotPasswordUserType.IsPlanner) {
+        user = await this.plannerService.getByEmail(email);
+      }
 
-    await iUser.save();
+      if (!user) {
+        throw new Error('Invalid user');
+      }
 
-    return {
-      Response: 'Password Reset Successfully',
-    };
+      const otp = await this.otpService.verifyOtp({
+        email,
+        code,
+        type: OtpEnumType.ResetPassword,
+      });
+
+      user.password = await hashed(newPassword);
+
+      await user.save();
+
+      return {
+        Response: 'Password Reset Successfully',
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { Response: error.message };
+      }
+      throw new InternalServerErrorException('Server Error');
+    }
   }
 
   async verifyAccount(payload: VerifyAccountDto): Promise<returnString> {

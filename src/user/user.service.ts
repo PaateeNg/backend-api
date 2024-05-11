@@ -39,7 +39,6 @@ export class UserService {
 
       return newUser;
     } catch (error) {
-      console.log('Error', error);
       throw new InternalServerErrorException('Server Error');
     }
   }

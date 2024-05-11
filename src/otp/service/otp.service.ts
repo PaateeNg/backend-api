@@ -1,8 +1,12 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Otp, otpDocument } from '../schemas/otp.schema';
-import { CreateOtpDto, SendOtpDto } from '../dto/otp.dto';
+import { CreateOtpDto, SendOtpDto, VerifyOtpDto } from '../dto/otp.dto';
 import { OtpEnumType } from '../enum/otp.enum';
 import { ConstantMessage } from 'src/common/constant/message/message.constant';
 import { EmailService } from 'src/mail/mail.service';
@@ -57,5 +61,28 @@ export class OtpService {
 
     await this.mailerService.sendMessage(email, subject, template);
     return true;
+  }
+
+  async verifyOtp(payload: VerifyOtpDto) {
+    try {
+      const { email, code } = payload;
+      const otp = await this.otpModel.findOne({ email: email, code: code });
+      if (!otp) {
+        throw new BadRequestException('Otp is either invalid or has expired');
+      }
+
+      await this.deleteOtp(otp._id);
+
+      return true;
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Server Error');
+    }
+  }
+
+  async deleteOtp(id: string) {
+    return await this.otpModel.findOneAndDelete({ _id: id }, { new: true });
   }
 }

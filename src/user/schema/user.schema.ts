@@ -34,7 +34,7 @@ export class User {
 
   @Field(() => [String])
   @Prop({ type: String, enum: Role, default: Role.USER, required: true })
-  role: Role;
+  role: Role[];
 
   @Field()
   @Prop({ type: Boolean, default: false })

@@ -6,26 +6,6 @@ import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 export class PlanerInputDto {
   @Field()
   @IsNotEmpty()
-  @IsString()
-  businessName: string;
-
-  @Field()
-  @IsNotEmpty()
-  @IsString()
-  location: string;
-
-  @Field()
-  @IsNotEmpty()
-  @IsString()
-  firstName: string;
-
-  @Field()
-  @IsNotEmpty()
-  @IsString()
-  lastName: string;
-
-  @Field()
-  @IsNotEmpty()
   @IsEmail()
   @IsString()
   email: string;
@@ -37,10 +17,10 @@ export class PlanerInputDto {
 }
 
 @InputType()
-export class updatePlannerDto extends PartialType(PlanerInputDto) {
-  @Exclude()
-  password: string;
-  @Exclude()
+export class updatePlannerDto {
+  @Field()
+  @IsNotEmpty()
+  @IsEmail()
   email: string;
 }
 

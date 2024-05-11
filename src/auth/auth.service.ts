@@ -57,7 +57,7 @@ export class AuthService {
             Response: 'User Sign Up Successfully, Kindly Verify Your Account',
           };
         } else if (userExist.isAccountVerified) {
-          throw new Error('User with the same email and phone already exists');
+          throw new Error('User with the same email already exists');
         }
       }
 
@@ -143,6 +143,10 @@ export class AuthService {
         throw new Error('Incorrect Password');
       }
 
+      if (!vendor.isAccountVerified) {
+        throw new Error('You have to verify your account before logging in');
+      }
+
       return await this.jwtToken(vendor);
     } catch (error) {
       if (error instanceof Error) {
@@ -153,14 +157,10 @@ export class AuthService {
   }
 
   async createPlanner(payload: PlanerInputDto) {
-    const { email, businessName } = payload;
+    const { email } = payload;
 
     try {
-      const plannerExist =
-        await this.plannerService.getPlanerByEmailOrBusinessName(
-          email,
-          businessName,
-        );
+      const plannerExist = await this.plannerService.getByEmail(email);
 
       if (plannerExist) {
         throw new Error('Planner Already Exist');
@@ -181,13 +181,28 @@ export class AuthService {
 
   async loginPlanner(payload: LoginPlannerInput): Promise<returnString> {
     const { email, password } = payload;
-    const planner = await this.plannerService.getByEmail(email);
+    try {
+      const planner = await this.plannerService.getByEmail(email);
 
-    if ((await comparePassword(password, planner.password)) === false) {
-      throw new BadRequestException('your password is incorrect');
+      if (!planner) {
+        throw new Error('Invalid Credential Provided');
+      }
+
+      if ((await comparePassword(password, planner.password)) === false) {
+        throw new BadRequestException('your password is incorrect');
+      }
+
+      if (!planner.isAccountVerified) {
+        throw new Error('You have to verify your account before logging in');
+      }
+
+      return await this.jwtToken(planner);
+    } catch (error) {
+      if (error instanceof Error) {
+        return { Response: error.message };
+      }
+      throw new InternalServerErrorException('Server Error');
     }
-
-    return await this.jwtToken(planner);
   }
 
   async getUserJwt(userId: string) {
@@ -211,44 +226,61 @@ export class AuthService {
     currentUser: UserDocument | VendorDocument | PlannerDocument,
   ): Promise<returnString> {
     const { newPassword, oldPassword } = payload;
-
     try {
       if (currentUser.isAccountSuspended) {
-        throw new UnauthorizedException(
-          'Your account is suspended. Please contact support.',
-        );
+        throw new Error('Your account is suspended. Please contact support.');
       }
 
       if (
         (await comparePassword(oldPassword, currentUser.password)) === false
       ) {
-        throw new BadRequestException('Your old password does not match.');
+        throw new Error('Your old password does not match.');
       }
 
       currentUser.password = await hashed(newPassword);
 
       await currentUser.save();
 
-      return { Response: 'Password changed successfully.' };
+      return { Response: 'Password changed successfully' };
     } catch (error) {
+      if (error instanceof Error) {
+        return { Response: error.message };
+      }
       throw new InternalServerErrorException('Server error.');
     }
   }
 
-  async forgotPassword(payload: ForgetPasswordDTO) {
+  async forgotPassword(payload: ForgetPasswordDTO): Promise<returnString> {
     const { email } = payload;
 
-    const [user, vendor, planner] = await Promise.all([
-      this.userService.getByEmail(email),
-      this.vendorService.getByEmail(email),
-      this.plannerService.getByEmail(email),
-    ]);
+    try {
+      const [user, vendor, planner] = await Promise.all([
+        this.userService.getByEmail(email),
+        this.vendorService.getByEmail(email),
+        this.plannerService.getByEmail(email),
+      ]);
 
-    if (user || vendor || planner) {
-      //implement otp service here
-      return {
-        Response: 'Otp Sent',
-      };
+      console.log('user', user);
+      console.log('vendor', vendor);
+      console.log('planner', planner);
+
+      if (!user || !vendor || planner) {
+        throw new Error('Invalid email');
+      }
+      if (user || vendor || planner) {
+        await this.otpService.sendOtp({
+          email: email,
+          type: OtpEnumType.ResetPassword,
+        });
+        return {
+          Response: 'Otp Sent',
+        };
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        return { Response: error.message };
+      }
+      throw new InternalServerErrorException('Server Error');
     }
   }
 

@@ -25,8 +25,8 @@ export class User {
   email: string;
 
   @Field({ nullable: true })
-  @Prop({ type: Number, unique: true })
-  phoneNumber: number;
+  @Prop({ type: Number })
+  phoneNumber?: number;
 
   @Field()
   @Prop({ type: String, required: true })

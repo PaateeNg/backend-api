@@ -73,7 +73,7 @@ export class AuthResolver {
     @GetCurrentGqlUser()
     currentUser: UserDocument | VendorDocument | PlannerDocument,
   ) {
-    return await this.authService.changePassword(payload, currentUser._id);
+    return await this.authService.changePassword(payload, currentUser);
   }
 
   @Mutation((returns) => returnString)

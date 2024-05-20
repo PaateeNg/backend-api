@@ -67,20 +67,24 @@ export class VendorService {
 
   async updateVendor(
     payload: UpdateVendorDto,
-    vendor: VendorDocument,
-  ): Promise<returnString> {
+    vendorId: string,
+  ): Promise<VendorDocument> {
     try {
-      const vendorExist = await this.getById(vendor._id);
+      const vendorExist = await this.getById(vendorId);
 
-      if (vendor._id.toString !== vendorExist._id.toString()) {
+      if (!vendorExist) {
+        throw new NotFoundException('Vendor Not Found');
+      }
+
+      if (vendorId.toString() !== vendorExist._id.toString()) {
         throw new UnauthorizedException('Not Authorized');
       }
-      if (vendor.isAccountSuspended) {
+      if (vendorExist.isAccountSuspended) {
         throw new UnauthorizedException('Contact Support');
       }
       const updatedVendor = await this.vendorModel.findOneAndUpdate(
-        { _id: vendor._id },
-        { payload },
+        { _id: vendorId },
+        payload,
         {
           new: true,
         },
@@ -90,20 +94,21 @@ export class VendorService {
         throw new ConflictException('Failed to update vendor');
       }
 
-      return {
-        Response: 'Updated Successfully',
-      };
+      return updatedVendor;
     } catch (error) {
+      if (error instanceof NotFoundException || UnauthorizedException) {
+        throw error;
+      }
       throw new InternalServerErrorException('Server Error');
     }
   }
 
-  async getAllVendors() {
+  async getAllVendors(): Promise<VendorDocument[]> {
     try {
       const vendors = await this.vendorModel.find({
-        suspended: false,
-        approved: true,
-        deleted: false,
+        isAccountSuspended: false,
+        isVendorApproved: true,
+        isDeleted: false,
       });
 
       return vendors;
@@ -117,16 +122,6 @@ export class VendorService {
       _id: id,
     });
 
-    if (!vendor) {
-      throw new NotFoundException('vendor not found');
-    }
-    return vendor;
-  }
-
-  async getByIdForGUse(id: string) {
-    const vendor = await this.vendorModel.findOne({
-      _id: id,
-    });
     if (!vendor) {
       return;
     }

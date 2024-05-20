@@ -57,33 +57,42 @@ export class PlannerService {
 
   async updatePlanner(
     payload: updatePlannerDto,
-    planner: PlannerDocument,
-  ): Promise<returnString> {
-    const plannerExist = await this.getById(planner._id);
+    plannerId: string,
+  ): Promise<PlannerDocument> {
+    try {
+      const plannerExist = await this.getById(plannerId);
 
-    if (plannerExist.isAccountSuspended) {
-      throw new UnauthorizedException('Contact Support');
+      if (!plannerExist) {
+        throw new NotFoundException('Not Found');
+      }
+
+      if (plannerExist.isAccountSuspended) {
+        throw new UnauthorizedException('Contact Support');
+      }
+
+      const updatedVendor = await this.plannerModel.findOneAndUpdate(
+        { _id: plannerId },
+        payload,
+        {
+          new: true,
+        },
+      );
+
+      return updatedVendor;
+    } catch (error) {
+      if (error instanceof NotFoundException || UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Server Error');
     }
-
-    const updatedVendor = await this.plannerModel.findOneAndUpdate(
-      { _id: planner._id },
-      { payload },
-      {
-        new: true,
-      },
-    );
-
-    if (!updatedVendor) {
-      throw new GraphQLError('Failed to update vendor');
-    }
-
-    return {
-      Response: 'updated Successfully',
-    };
   }
 
-  async getAllPlanner() {
-    return await this.plannerModel.find({});
+  async getAllPlanner(): Promise<PlannerDocument[]> {
+    return await this.plannerModel.find({
+      isAccountSuspended: false,
+      isAccountVerified: true,
+      isPlannerApproved: true,
+    });
   }
 
   async getById(id: string): Promise<PlannerDocument> {
@@ -92,19 +101,9 @@ export class PlannerService {
     });
 
     if (!planner) {
-      throw new NotFoundException('planner not found');
-    }
-
-    return planner;
-  }
-
-  async getByIdForGUse(id: string) {
-    const planner = await this.plannerModel.findOne({
-      _id: id,
-    });
-    if (!planner) {
       return;
     }
+
     return planner;
   }
 }

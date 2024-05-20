@@ -12,12 +12,12 @@ export class UserResolver {
   constructor(private userService: UserService) {}
 
   @UseGuards(GqlAuthGuard)
-  @Mutation((returns) => returnString)
+  @Mutation((returns) => User)
   updateUser(
-    @Args('updatePayload') payload: UpdateUserDto,
+    @Args('payload') payload: UpdateUserDto,
     @GetCurrentGqlUser() user: UserDocument,
-  ): Promise<returnString> {
-    return this.userService.updateUser(payload, user);
+  ): Promise<UserDocument> {
+    return this.userService.updateUser(payload, user._id);
   }
 
   @UseGuards(GqlAuthGuard)
@@ -27,7 +27,7 @@ export class UserResolver {
   }
 
   @Query((returns) => [User])
-  async getAll(): Promise<UserDocument[]> {
+  async getAllUser(): Promise<UserDocument[]> {
     return await this.userService.getAll();
   }
 }

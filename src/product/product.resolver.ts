@@ -6,7 +6,10 @@ import { GqlAuthGuard } from 'src/auth/guards/graphql.guard';
 import { GetCurrentGqlUser } from 'src/auth/decorators/graphQl.decorator';
 import { VendorDocument } from 'src/vendor/schema/vendor.schema';
 import { Product, ProductDocument } from './schema/product.schema';
-import { ProductsAndCount } from './input/return/return.input';
+import {
+  ProductQueryInput,
+  ProductsAndCount,
+} from './input/return/return.input';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
@@ -19,7 +22,6 @@ export class ProductResolver {
   @Mutation((returns) => Product)
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.VENDOR)
-  //@Roles(Role.VENDOR)
   async create(
     @Args('payload') payload: CreateProductInput,
     @GetCurrentGqlUser() vendor: VendorDocument,
@@ -30,16 +32,16 @@ export class ProductResolver {
   @Mutation((returns) => Product)
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.VENDOR)
-  async update(
+  async updateProduct(
     @Args('productId') productId: string,
-    @Args('updatePayload') payload: UpdateProductsInput,
+    @Args('payload') payload: UpdateProductsInput,
     @GetCurrentGqlUser() vendor: VendorDocument,
   ) {
     return await this.productService.update(productId, payload, vendor);
   }
 
-  @Query((returns) => Product)
-  async getAll(): Promise<ProductDocument[]> {
+  @Query((returns) => [Product])
+  async getAllProduct(): Promise<ProductDocument[]> {
     return await this.productService.getAll();
   }
 

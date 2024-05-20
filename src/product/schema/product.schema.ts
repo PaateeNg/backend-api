@@ -16,9 +16,9 @@ export class Product {
   @Prop({ type: String, required: true })
   makeBy: string;
 
-  @Field(() => String)
-  @Prop({ type: String, enum: ProductCategory, required: true })
-  category: ProductCategory;
+  @Field(() => [String], { nullable: true })
+  @Prop({ type: [String], enum: ProductCategory, required: true, default: [] })
+  category: ProductCategory[];
 
   @Field()
   @Prop({ type: Number, required: true })

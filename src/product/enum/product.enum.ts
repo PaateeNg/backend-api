@@ -3,7 +3,7 @@ export enum ProductCategory {
   DRINKS = 'Drinks',
   CATERERS = 'Caterers',
   DJ = `DJ's`,
-  MC = `DJ's`,
+  MC = `Mc's`,
   VENUE = 'Venues',
   PHOTOGRAPHERS = 'Photographers',
   PARTY_DECORATORS = 'PartyDecorators',

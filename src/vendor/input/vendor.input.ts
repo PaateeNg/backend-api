@@ -1,6 +1,12 @@
 import { Field, InputType, PartialType } from '@nestjs/graphql';
 import { Exclude } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 @InputType()
 export class VendorInput {
@@ -8,21 +14,6 @@ export class VendorInput {
   @IsNotEmpty()
   @IsEmail()
   email: string;
-
-  // @Field()
-  // @IsNotEmpty()
-  // @IsString()
-  // businessName: string;
-
-  // @Field()
-  // @IsNotEmpty()
-  // @IsString()
-  // firstName: string;
-
-  // @Field()
-  // @IsNotEmpty()
-  // @IsString()
-  // lastName: string;
 
   @Field()
   @IsNotEmpty()
@@ -33,10 +24,40 @@ export class VendorInput {
 
 @InputType()
 export class UpdateVendorDto {
-  @Field()
+  @Field({ nullable: true })
   @IsOptional()
   @IsString()
-  lastName: string;
+  lastName?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  businessName?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  years_of_Experience?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsNumber()
+  phoneNumber?: number;
 }
 
 @InputType()

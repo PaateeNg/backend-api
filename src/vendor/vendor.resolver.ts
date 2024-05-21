@@ -11,17 +11,17 @@ import { UpdateVendorDto } from './input/vendor.input';
 export class VendorResolver {
   constructor(private vendorService: VendorService) {}
 
-  @Mutation((returns) => returnString)
+  @Mutation((returns) => Vendor)
   @UseGuards(GqlAuthGuard)
   updateVendor(
-    @Args('updatePayload') payload: UpdateVendorDto,
+    @Args('payload') payload: UpdateVendorDto,
     @GetCurrentGqlUser() vendor: VendorDocument,
-  ): Promise<returnString> {
-    return this.vendorService.updateVendor(payload, vendor);
+  ): Promise<VendorDocument> {
+    return this.vendorService.updateVendor(payload, vendor._id);
   }
 
   @Query((returns) => [Vendor])
-  getAll() {
+  getAllVendor(): Promise<VendorDocument[]> {
     return this.vendorService.getAllVendors();
   }
 }

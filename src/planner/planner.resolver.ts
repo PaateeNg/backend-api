@@ -20,18 +20,18 @@ export class PlannerResolver {
     return planner;
   }
 
-  @Mutation((returns) => returnString)
+  @Mutation((returns) => Planner)
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.PLANNER, Role.MODERATOR)
-  updatePlanner(
-    @Args('updatePayload') payload: updatePlannerDto,
+  async updatePlanner(
+    @Args('payload') payload: updatePlannerDto,
     @GetCurrentGqlUser() planner: PlannerDocument,
-  ): Promise<returnString> {
-    return this.plannerService.updatePlanner(payload, planner);
+  ): Promise<PlannerDocument> {
+    return await this.plannerService.updatePlanner(payload, planner._id);
   }
 
   @Query((returns) => [Planner])
-  getAll() {
-    return this.plannerService.getAllPlanner();
+  async getAllPlanner(): Promise<PlannerDocument[]> {
+    return await this.plannerService.getAllPlanner();
   }
 }

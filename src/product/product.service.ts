@@ -10,8 +10,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from './schema/product.schema';
 import { Model } from 'mongoose';
 import { VendorDocument } from 'src/vendor/schema/vendor.schema';
-import { ProductsAndCount } from './input/return/return.input';
+import {
+  ProductQueryInput,
+  ProductsAndCount,
+} from './input/return/return.input';
 import { returnString } from 'src/common/return/return.input';
+import { Query } from 'express-serve-static-core';
 
 @Injectable()
 export class ProductService {
@@ -24,6 +28,7 @@ export class ProductService {
     payload: CreateProductInput,
     vendor: VendorDocument,
   ): Promise<ProductDocument> {
+    const { price } = payload;
     try {
       if (vendor.isVendorApproved === false) {
         throw new UnauthorizedException(`your account is not active yet`);
@@ -36,7 +41,9 @@ export class ProductService {
         throw new UnauthorizedException(`Not Authorized`);
       }
 
-      const newPrice = payload.price * 0.5;
+      const charge = payload.price * 0.05;
+
+      const newPrice = price + charge;
 
       //image function will here
 
@@ -53,7 +60,7 @@ export class ProductService {
       return product;
     } catch (error) {
       if (error instanceof UnauthorizedException) {
-        throw error.message;
+        throw error;
       }
       throw new InternalServerErrorException('Server Error');
     }
@@ -97,6 +104,25 @@ export class ProductService {
       isDeleted: false,
       isProductApproved: true,
     });
+  }
+
+  async findProductByName(query: Query): Promise<ProductDocument[]> {
+    const resPerPage = 3;
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
+
+    const keyword = query.keyword
+      ? {
+          productName: {
+            $regex: query.keyword,
+            $options: 'i',
+          },
+        }
+      : {};
+    return await this.productModel
+      .find({ ...keyword })
+      .limit(resPerPage)
+      .skip(skip);
   }
 
   async getById(id: string): Promise<ProductDocument> {

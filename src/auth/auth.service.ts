@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { comparePassword, hashed } from 'src/common/hashed/util.hash';
@@ -139,18 +140,23 @@ export class AuthService {
     const { email, password } = payload;
     try {
       const vendor = await this.vendorService.getByEmail(email);
+      if (!vendor) {
+        throw new NotFoundException('Vendor Not Found ');
+      }
 
       if ((await comparePassword(password, vendor.password)) === false) {
-        throw new Error('Incorrect Password');
+        throw new BadRequestException('Incorrect Password');
       }
 
       if (!vendor.isAccountVerified) {
-        throw new Error('You have to verify your account before logging in');
+        throw new BadRequestException(
+          'You have to verify your account before logging in',
+        );
       }
 
       return await this.jwtToken(vendor);
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof NotFoundException || BadRequestException) {
         return { Response: error.message };
       }
       throw new InternalServerErrorException('Server Error');
@@ -164,7 +170,7 @@ export class AuthService {
       const plannerExist = await this.plannerService.getByEmail(email);
 
       if (plannerExist) {
-        throw new Error('Planner Already Exist');
+        throw new BadRequestException('Planner Already Exist');
       }
 
       await this.plannerService.createPlanner(payload);
@@ -173,7 +179,7 @@ export class AuthService {
         Response: 'Planner Sign Up Success, Kindly Verify Your Account',
       };
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof BadRequestException) {
         return { Response: error.message };
       }
       throw new InternalServerErrorException('Server Error');
@@ -208,9 +214,9 @@ export class AuthService {
 
   async getUserJwt(userId: string) {
     const [vendor, user, planner] = await Promise.all([
-      this.vendorService.getByIdForGUse(userId),
-      this.userService.getByIdForGUse(userId),
-      this.plannerService.getByIdForGUse(userId),
+      this.vendorService.getById(userId),
+      this.userService.getById(userId),
+      this.plannerService.getById(userId),
     ]);
 
     const iUser = user || planner || vendor;

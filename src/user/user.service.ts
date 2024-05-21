@@ -55,16 +55,6 @@ export class UserService {
       _id: id,
     });
     if (!user) {
-      throw new NotFoundException('user not found');
-    }
-    return user;
-  }
-
-  async getByIdForGUse(id: string) {
-    const user = await this.userModel.findOne({
-      _id: id,
-    });
-    if (!user) {
       return;
     }
     return user;
@@ -94,25 +84,35 @@ export class UserService {
 
   async updateUser(
     payload: UpdateUserDto,
-    user: UserDocument,
-  ): Promise<returnString> {
-    const userExist = await this.getById(user._id);
-
-    if (userExist._id.toString() !== user._id.toString()) {
-      throw new UnauthorizedException('Not Authorized');
+    userId: string,
+  ): Promise<UserDocument> {
+    const userExist = await this.getById(userId);
+    if (!userExist) {
+      throw new Error('User Not Found');
     }
 
-    if (userExist.isAccountSuspended) {
-      throw new UnauthorizedException('Support Support');
-    }
+    try {
+      if (userExist._id.toString() !== userId.toString()) {
+        throw new Error('Not Authorized');
+      }
 
-    await this.userModel.findOneAndUpdate(
-      { _id: user._id },
-      { ...payload },
-      {
-        new: true,
-      },
-    );
-    return { Response: 'Updated Successfully' };
+      if (userExist.isAccountSuspended) {
+        throw new Error('Support Support');
+      }
+
+      const updatedProfile = await this.userModel.findOneAndUpdate(
+        { _id: userId },
+        payload,
+        {
+          new: true,
+        },
+      );
+      return updatedProfile;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Server Error');
+    }
   }
 }

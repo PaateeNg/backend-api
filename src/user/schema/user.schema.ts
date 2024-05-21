@@ -28,12 +28,16 @@ export class User {
   @Prop({ type: Number })
   phoneNumber?: number;
 
-  @Field()
-  @Prop({ type: String, required: true })
-  password: string;
+  @Field({ nullable: true })
+  @Prop({ type: String })
+  password?: string;
+
+  @Field({ nullable: true })
+  @Prop({ type: Boolean, required: true, default: false })
+  isGoogleAuth: boolean;
 
   @Field(() => [String])
-  @Prop({ type: String, enum: Role, default: Role.USER, required: true })
+  @Prop({ type: [String], enum: Role, default: Role.USER, required: true })
   role: Role[];
 
   @Field()

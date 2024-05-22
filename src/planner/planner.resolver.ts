@@ -4,7 +4,6 @@ import { Planner, PlannerDocument } from './schema/planner.schema';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from 'src/auth/guards/graphql.guard';
 import { GetCurrentGqlUser } from 'src/auth/decorators/graphQl.decorator';
-import { returnString } from 'src/common/return/return.input';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
@@ -30,6 +29,7 @@ export class PlannerResolver {
     return await this.plannerService.updatePlanner(payload, planner._id);
   }
 
+  //change it later
   @Query((returns) => [Planner])
   async getAllPlanner(): Promise<PlannerDocument[]> {
     return await this.plannerService.getAllPlanner();

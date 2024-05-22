@@ -1,4 +1,4 @@
-import { Field, InputType, PartialType } from '@nestjs/graphql';
+import { ArgsType, Field, InputType, Int, PartialType } from '@nestjs/graphql';
 import {
   IsArray,
   IsBoolean,
@@ -36,7 +36,6 @@ export class CreateProductInput {
 
   @Field()
   @IsNumber()
-  //@Transform(({ value }) => parseFloat(value.trim()))
   @IsNotEmpty()
   price: number;
 
@@ -48,3 +47,16 @@ export class CreateProductInput {
 
 @InputType()
 export class UpdateProductsInput extends PartialType(CreateProductInput) {}
+
+@ArgsType()
+export class FindProductByNameDto {
+  @Field({ nullable: true })
+  @IsString()
+  @IsOptional()
+  keyword?: string;
+
+  @Field(() => Int, { nullable: true })
+  @IsNumber()
+  @IsOptional()
+  page?: number;
+}

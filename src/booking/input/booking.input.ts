@@ -1,33 +1,47 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import {
+  IsArray,
+  IsDate,
+  IsEmail,
+  IsEnum,
+  IsMongoId,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { EventTypeEnum } from '../enum/booking.enum';
 
 @InputType()
-export class BookingInput {
+export class BookingInputDto {
   @Field({ nullable: true })
   @IsEmail()
+  @IsOptional()
   email?: string;
 
-  @Field()
-  @IsNotEmpty()
-  phoneNumber: string;
+  @Field({ nullable: true })
+  @IsNumber()
+  @IsOptional()
+  phoneNumber: number;
 
   @Field()
   @IsNotEmpty()
-  eventDate: string;
+  @IsDate()
+  eventDate: Date;
+
+  @Field(() => [String])
+  @IsNotEmpty()
+  @IsArray()
+  @IsEnum(EventTypeEnum, { each: true })
+  eventType: string[];
 
   @Field()
   @IsNotEmpty()
-  eventType: string; //this should be an enum
-
-  @Field()
-  @IsNotEmpty()
+  @IsString()
   eventLocation: string;
 
-  // @Field(() => [String])
-  // @IsNotEmpty()
-  // vendorId: string[];
-
-  // @Field(() => [String], {nullable: true})
-  // @IsOptional()
-  // productId?: [string]
+  @Field(() => [String])
+  @IsNotEmpty()
+  @IsArray()
+  plannerIds: string[];
 }

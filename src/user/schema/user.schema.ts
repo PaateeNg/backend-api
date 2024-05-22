@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { Role } from 'src/common/enum/role.enum';
 
 export type UserDocument = User & Document;
@@ -39,6 +39,13 @@ export class User {
   @Field(() => [String])
   @Prop({ type: [String], enum: Role, default: Role.USER, required: true })
   role: Role[];
+
+  @Field(() => [String], { nullable: true })
+  @Prop({
+    type: [mongoose.Schema.Types.ObjectId],
+    default: [],
+  })
+  yourBookedMenu?: mongoose.Types.ObjectId[];
 
   @Field()
   @Prop({ type: Boolean, default: false })

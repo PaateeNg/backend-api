@@ -1,43 +1,48 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { EventTypeEnum } from '../enum/booking.enum';
 
 export type BookedDocument = Booked & Document;
+
 @ObjectType()
 @Schema({ timestamps: true })
-export class Booked extends Document {
-  @Field()
-  @Prop({ nullable: true })
-  email: string;
+export class Booked {
+  @Field({ nullable: true })
+  @Prop({ type: String })
+  email?: string;
+
+  @Field({ nullable: true })
+  @Prop({ type: Number })
+  phoneNumber: number;
 
   @Field()
-  @Prop()
-  phoneNumber: string;
+  @Prop({ type: Date, required: true })
+  eventDate: Date;
+
+  @Field(() => [String])
+  @Prop({ type: [String], enum: EventTypeEnum, required: true, default: [] })
+  eventType: EventTypeEnum[];
 
   @Field()
-  @Prop()
-  eventDate: string;
-
-  @Field()
-  @Prop()
-  eventType: string;
-
-  @Field()
-  @Prop()
+  @Prop({ type: String, required: true })
   eventLocation: string;
 
-  //   @Field((type) => [String], { nullable: true })
-  //   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Product' })
-  //   productId?: mongoose.Types.ObjectId[];
+  @Field((type) => [String])
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Planner' })
+  bookedPlanner: mongoose.Types.ObjectId[];
 
-  //   @Field((type) => [String])
-  //   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Vendor' })
-  //   vendorId: mongoose.Types.ObjectId[];
-
-  // Booking with users relation
   @Field((type) => String)
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   userId: mongoose.Types.ObjectId;
+
+  @Field((type) => Boolean)
+  @Prop({ type: Boolean, default: false })
+  paymentMade?: boolean;
+
+  @Field((type) => String)
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Payment' })
+  paymentId?: mongoose.Types.ObjectId;
 }
 
 export const BookedSchema = SchemaFactory.createForClass(Booked);

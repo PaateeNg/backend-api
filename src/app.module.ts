@@ -12,6 +12,7 @@ import { MailModule } from './mail/mail.module';
 import { CartModule } from './cart/cart.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { OtpModule } from './otp/module/otp.module';
+import { RepositoryModule } from './repository/repository.module';
 
 require('dotenv').config();
 
@@ -41,6 +42,7 @@ require('dotenv').config();
     BookingModule,
     CartModule,
     OtpModule,
+    RepositoryModule,
   ],
 })
 export class AppModule {}

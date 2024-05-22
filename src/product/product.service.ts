@@ -1,27 +1,32 @@
 import {
+  BadGatewayException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateProductInput, UpdateProductsInput } from './input/product.dto';
+import {
+  CreateProductInput,
+  FindProductByNameDto,
+  UpdateProductsInput,
+} from './input/product.dto';
 import { GraphQLError } from 'graphql';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from './schema/product.schema';
 import { Model } from 'mongoose';
 import { VendorDocument } from 'src/vendor/schema/vendor.schema';
-import {
-  ProductQueryInput,
-  ProductsAndCount,
-} from './input/return/return.input';
+import { ProductDetails, ProductsAndCount } from './input/return/return.input';
 import { returnString } from 'src/common/return/return.input';
 import { Query } from 'express-serve-static-core';
+import { PaginationDto } from 'src/repository/dto/repository.dto';
+import { RepositoryService } from 'src/repository/repository.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name)
     private productModel: Model<ProductDocument>,
+    private repositoryService: RepositoryService,
   ) {}
 
   async create(
@@ -41,7 +46,7 @@ export class ProductService {
         throw new UnauthorizedException(`Not Authorized`);
       }
 
-      const charge = payload.price * 0.05;
+      const charge = payload.price * 0.1;
 
       const newPrice = price + charge;
 
@@ -77,7 +82,7 @@ export class ProductService {
       if (product.creatorId.toString() !== vendor._id.toString()) {
         throw new UnauthorizedException('Not Authorized');
       }
-      if (product.$isDeleted) {
+      if (product.isDeleted) {
         throw new NotFoundException('product not found');
       }
 
@@ -106,10 +111,12 @@ export class ProductService {
     });
   }
 
-  async findProductByName(query: Query): Promise<ProductDocument[]> {
-    const resPerPage = 3;
-    const currentPage = Number(query.page) || 1;
-    const skip = resPerPage * (currentPage - 1);
+  async findProductByName(
+    query: FindProductByNameDto,
+  ): Promise<ProductDocument[]> {
+    const { page } = query;
+    const currentPage = page || 1;
+    const skip = page * (currentPage - 1);
 
     const keyword = query.keyword
       ? {
@@ -119,10 +126,28 @@ export class ProductService {
           },
         }
       : {};
+
     return await this.productModel
-      .find({ ...keyword })
-      .limit(resPerPage)
-      .skip(skip);
+      .find({ ...keyword, isDeleted: false, isProductApproved: true })
+      .limit(page)
+      .skip(skip)
+      .exec();
+  }
+
+  async getProductTimeLime(query?: PaginationDto): Promise<ProductDetails> {
+    const data = await this.repositoryService.pagination(
+      this.productModel,
+      query,
+      {
+        isDeleted: false,
+        isProductApproved: true,
+      },
+    );
+
+    return {
+      data: data.data,
+      metadata: data.metadata,
+    };
   }
 
   async getById(id: string): Promise<ProductDocument> {
@@ -139,6 +164,9 @@ export class ProductService {
 
       return product;
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException('Server error');
     }
   }
@@ -165,16 +193,19 @@ export class ProductService {
 
   async deletedProductById(
     productId: string,
-    vendor: VendorDocument,
+    vendorId: string,
   ): Promise<returnString> {
     try {
       const product = await this.getById(productId);
 
-      if (product.creatorId.toString() !== vendor._id.toString()) {
+      if (product.creatorId.toString() !== vendorId.toString()) {
         throw new UnauthorizedException('Not Authorized');
       }
 
-      product.isDeleted = false;
+      if (product.isDeleted) {
+        throw new NotFoundException('Product Not Found ');
+      }
+      product.isDeleted = true;
 
       await product.save();
 
@@ -182,6 +213,9 @@ export class ProductService {
         Response: `Product Deleted`,
       };
     } catch (error) {
+      if (error instanceof NotFoundException || UnauthorizedException) {
+        throw error.message;
+      }
       throw new InternalServerErrorException('server error');
     }
   }

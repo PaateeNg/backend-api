@@ -1,4 +1,5 @@
-import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { IsOptional } from 'class-validator';
 import { Product, ProductDocument } from 'src/product/schema/product.schema';
 
 @ObjectType()
@@ -10,11 +11,30 @@ export class ProductsAndCount {
   totalProductCount: number;
 }
 
-@InputType()
-export class ProductQueryInput {
+@ObjectType()
+class Meta {
   @Field({ nullable: true })
-  keyword?: string;
+  @IsOptional()
+  total?: number;
 
   @Field({ nullable: true })
+  @IsOptional()
   page?: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  size?: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  lastPage?: number;
+}
+
+@ObjectType()
+export class ProductDetails {
+  @Field((type) => [Product])
+  data: ProductDocument[];
+
+  @Field((type) => Meta)
+  metadata: Meta;
 }

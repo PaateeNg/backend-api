@@ -25,14 +25,16 @@ export class BookingService {
     const { plannerIds } = payload;
 
     const plannerResults = await Promise.all(
-      plannerIds.map(async (id) => {
-        return await this.plannerService.getById(id);
+      plannerIds.map((id) => {
+        const planner = this.plannerService.getById(id);
+
+        if (!planner) {
+          throw new NotFoundException(`Planner with ID ${id} not found`);
+        }
+
+        return planner;
       }),
     );
-
-    if (!plannerResults) {
-      throw new NotFoundException('Planner Not Found');
-    }
 
     const booked = await this.bookedModel.create({
       ...payload,
@@ -40,10 +42,9 @@ export class BookingService {
       bookedPlanner: plannerResults,
     });
 
-    plannerResults.map(async (planner) => {
-      user.yourBookedMenu.push(planner._id);
-      await user.save();
-    });
+    user.bookedMenu.push(...plannerIds);
+
+    await user.save();
 
     return booked;
   }

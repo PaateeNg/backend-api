@@ -11,5 +11,6 @@ import { RepositoryModule } from 'src/repository/repository.module';
     RepositoryModule,
   ],
   providers: [ProductService, ProductResolver],
+  exports: [ProductService],
 })
 export class ProductModule {}

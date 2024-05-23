@@ -42,10 +42,10 @@ export class User {
 
   @Field(() => [String], { nullable: true })
   @Prop({
-    type: [mongoose.Schema.Types.ObjectId],
+    type: [mongoose.Schema.Types.ObjectId], ref: "Planner",
     default: [],
   })
-  yourBookedMenu?: mongoose.Types.ObjectId[];
+  bookedMenu?: string[];
 
   @Field()
   @Prop({ type: Boolean, default: false })

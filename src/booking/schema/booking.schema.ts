@@ -28,6 +28,10 @@ export class Booked {
   @Prop({ type: String, required: true })
   eventLocation: string;
 
+  @Field((type) => Number)
+  @Prop({ type: Number, required: true })
+  totalBookingAmount: number;
+
   @Field((type) => [String])
   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Planner' })
   bookedPlanner: mongoose.Types.ObjectId[];
@@ -41,8 +45,12 @@ export class Booked {
   paymentMade?: boolean;
 
   @Field((type) => String)
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Payment' })
-  paymentId?: mongoose.Types.ObjectId;
+  @Prop({ type: String })
+  paymentReferenceId?: string;
+
+  @Field((type) => String)
+  @Prop({ type: String })
+  paymentStatus?: string;
 }
 
 export const BookedSchema = SchemaFactory.createForClass(Booked);

@@ -11,6 +11,7 @@ import { PlannerModule } from 'src/planner/planner.module';
     MongooseModule.forFeature([{ name: Booked.name, schema: BookedSchema }]),
   ],
   providers: [BookingService, BookingResolver],
+  exports: [BookingService],
   controllers: [],
 })
 export class BookingModule {}

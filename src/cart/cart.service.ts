@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Cart, CartDocument } from './schema/addtocart.schema';
@@ -50,9 +54,20 @@ export class CartService {
     const createCart = await this.cartModel.create({
       priceTotal: totalPrice,
       items: cart,
-      userId: user._id,
+      creatorId: user._id,
     });
 
     return createCart;
+  }
+
+  async getById(cartId: string, userId?: string) {
+    const cart = await this.cartModel.findOne({
+      _id: cartId,
+      creatorId: userId,
+    });
+    if (!cart) {
+      throw new NotFoundException(`Cart with ID ${cartId} not found`);
+    }
+    return cart;
   }
 }

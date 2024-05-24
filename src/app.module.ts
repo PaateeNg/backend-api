@@ -13,6 +13,7 @@ import { CartModule } from './cart/cart.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { OtpModule } from './otp/module/otp.module';
 import { RepositoryModule } from './repository/repository.module';
+import { PaymentModule } from './payment/module/payment.module';
 
 require('dotenv').config();
 
@@ -43,6 +44,7 @@ require('dotenv').config();
     CartModule,
     OtpModule,
     RepositoryModule,
+    PaymentModule,
   ],
 })
 export class AppModule {}

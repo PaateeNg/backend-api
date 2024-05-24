@@ -1,15 +1,9 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateUserInput, UpdateUserDto } from './input/user.input.dto';
 import { hashed } from 'src/common/hashed/util.hash';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schema/user.schema';
 import { Model } from 'mongoose';
-import { returnString } from 'src/common/return/return.input';
 import { OtpService } from 'src/otp/service/otp.service';
 import { OtpEnumType } from 'src/otp/enum/otp.enum';
 
@@ -47,6 +41,7 @@ export class UserService {
     return await this.userModel.find({
       isDeleted: false,
       isAccountSuspended: false,
+      isAccountVerified: true,
     });
   }
 

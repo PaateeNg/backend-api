@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -7,21 +6,23 @@ import {
 } from '@nestjs/common';
 import { PlanerInputDto, updatePlannerDto } from './input/planner.input.dto';
 import { hashed } from 'src/common/hashed/util.hash';
-import { GraphQLError } from 'graphql';
 import { InjectModel } from '@nestjs/mongoose';
 import { Planner, PlannerDocument } from './schema/planner.schema';
 import { Model } from 'mongoose';
-import { returnString } from 'src/common/return/return.input';
+import { ENVIRONMENT } from 'src/common/constant/environment/env.variable';
+import { OtpService } from 'src/otp/service/otp.service';
+import { OtpEnumType } from 'src/otp/enum/otp.enum';
 
 @Injectable()
 export class PlannerService {
   constructor(
     @InjectModel(Planner.name)
     private plannerModel: Model<PlannerDocument>,
+    private otpService: OtpService,
   ) {}
 
   async createPlanner(payload: PlanerInputDto) {
-    const { password } = payload;
+    const { password, email } = payload;
     try {
       const hashedPassword = await hashed(password);
 
@@ -30,6 +31,12 @@ export class PlannerService {
         password: hashedPassword,
         isPlanner: true,
       });
+
+      await this.otpService.sendOtp({
+        email: email,
+        type: OtpEnumType.AccountVerification,
+      });
+
       return savedPlanner;
     } catch (error) {
       throw new InternalServerErrorException('Server Error');
@@ -61,6 +68,8 @@ export class PlannerService {
     plannerId: string,
   ): Promise<PlannerDocument> {
     try {
+      const { amountCharge } = payload;
+      let chargeTotal = 0;
       const plannerExist = await this.getById(plannerId);
 
       if (!plannerExist) {
@@ -71,9 +80,17 @@ export class PlannerService {
         throw new UnauthorizedException('Contact Support');
       }
 
+      if (amountCharge) {
+        const percentage = amountCharge * +ENVIRONMENT.PERCENTAGE.PlANNER;
+        chargeTotal = amountCharge + percentage;
+      }
+
       const updatedVendor = await this.plannerModel.findOneAndUpdate(
         { _id: plannerId },
-        payload,
+        {
+          ...payload,
+          amountCharge: chargeTotal,
+        },
         {
           new: true,
         },

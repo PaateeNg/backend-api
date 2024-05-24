@@ -24,21 +24,33 @@ export class BookingService {
   ): Promise<BookedDocument> {
     const { plannerIds } = payload;
 
+    let priceCart: { price: number }[] = [];
+    let totalPrice = 0;
+
     const plannerResults = await Promise.all(
-      plannerIds.map((id) => {
-        const planner = this.plannerService.getById(id);
+      plannerIds.map(async (id) => {
+        const planner = await this.plannerService.getById(id);
 
         if (!planner) {
           throw new NotFoundException(`Planner with ID ${id} not found`);
         }
 
+        priceCart.push({
+          price: planner.amountCharge,
+        });
+
         return planner;
       }),
     );
 
+    priceCart.forEach((planner) => {
+      totalPrice += planner.price;
+    });
+
     const booked = await this.bookedModel.create({
       ...payload,
       userId: user._id,
+      totalBookingAmount: totalPrice,
       bookedPlanner: plannerResults,
     });
 
@@ -46,6 +58,17 @@ export class BookingService {
 
     await user.save();
 
+    return booked;
+  }
+
+  async getById(bookedId: string, userId: string) {
+    const booked = await this.bookedModel.findOne({
+      _id: bookedId,
+      userId: userId,
+    });
+    if (!booked) {
+      throw new NotFoundException(`Booking with ID ${bookedId} not found`);
+    }
     return booked;
   }
 }

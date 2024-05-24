@@ -60,6 +60,10 @@ export class Planner {
   @Prop({ type: Number })
   phoneNumber?: number;
 
+  @Field({ nullable: true })
+  @Prop({ type: Number, default: 0 })
+  amountCharge?: number;
+
   @Prop({ default: false, type: Boolean })
   isAccountVerified: boolean;
 

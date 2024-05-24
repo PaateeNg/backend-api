@@ -119,7 +119,7 @@ export class AuthService {
             Response: 'Vendor Sign Up Successfully, Kindly Verify Your Account',
           };
         } else if (vendorExist.isAccountVerified) {
-          throw new Error('Vendor Already Exist');
+          throw new BadRequestException('Vendor Already Exist');
         }
       }
 
@@ -129,7 +129,7 @@ export class AuthService {
         Response: 'Vendor Sign Up Successfully, Kindly Verify Your Account',
       };
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof BadRequestException) {
         return { Response: error.message };
       }
       throw new InternalServerErrorException('Server Error');
@@ -170,7 +170,17 @@ export class AuthService {
       const plannerExist = await this.plannerService.getByEmail(email);
 
       if (plannerExist) {
-        throw new BadRequestException('Planner Already Exist');
+        if (!plannerExist.isAccountVerified) {
+          await this.otpService.sendOtp({
+            email: email,
+            type: OtpEnumType.AccountVerification,
+          });
+          return {
+            Response: 'Planner Sign Up Success, Kindly Verify Your Account',
+          };
+        } else if (plannerExist.isAccountVerified) {
+          throw new BadRequestException('User Already Exist');
+        }
       }
 
       await this.plannerService.createPlanner(payload);
@@ -192,7 +202,7 @@ export class AuthService {
       const planner = await this.plannerService.getByEmail(email);
 
       if (!planner) {
-        throw new Error('Invalid Credential Provided');
+        throw new BadRequestException('Invalid Credential Provided');
       }
 
       if ((await comparePassword(password, planner.password)) === false) {
@@ -200,12 +210,14 @@ export class AuthService {
       }
 
       if (!planner.isAccountVerified) {
-        throw new Error('You have to verify your account before logging in');
+        throw new BadRequestException(
+          'You have to verify your account before logging in',
+        );
       }
 
       return await this.jwtToken(planner);
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof BadRequestException) {
         return { Response: error.message };
       }
       throw new InternalServerErrorException('Server Error');

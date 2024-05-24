@@ -47,6 +47,10 @@ export class updatePlannerDto {
   @Field({ nullable: true })
   @IsOptional()
   phoneNumber?: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  amountCharge?: number;
 }
 
 @InputType()

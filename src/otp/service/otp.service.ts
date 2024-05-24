@@ -60,7 +60,9 @@ export class OtpService {
     }
 
     await this.mailerService.sendMessage(email, subject, template);
-    return true;
+    return {
+      Response: 'otp sent',
+    };
   }
 
   async verifyOtp(payload: VerifyOtpDto) {

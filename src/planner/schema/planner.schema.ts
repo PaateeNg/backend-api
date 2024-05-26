@@ -28,9 +28,17 @@ export class Planner {
   @Prop({ type: String })
   password: string;
 
+  @Field(() => String, { nullable: true })
+  @Prop({ type: String })
+  accessToken?: string;
+
   @Field({ nullable: true })
   @Prop({ type: String })
   businessName?: string;
+
+  @Field({ nullable: true })
+  @Prop({ type: Boolean, required: true, default: false })
+  isGoogleAuth: boolean;
 
   @Field()
   @Prop({ default: false })

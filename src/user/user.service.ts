@@ -6,13 +6,18 @@ import { User, UserDocument } from './schema/user.schema';
 import { Model } from 'mongoose';
 import { OtpService } from 'src/otp/service/otp.service';
 import { OtpEnumType } from 'src/otp/enum/otp.enum';
-
+import { JwtService } from '@nestjs/jwt';
+import {
+  CreateInputDto,
+  CreateAccountWithOughtDto,
+} from 'src/auth/input-dto/auth-input.dto';
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
     private otpService: OtpService,
+    private jwtService: JwtService,
   ) {}
 
   async createUser(payload: CreateUserInput) {
@@ -35,6 +40,21 @@ export class UserService {
     } catch (error) {
       throw new InternalServerErrorException('Server Error');
     }
+  }
+
+  async createUserWithGoogle(payload: CreateAccountWithOughtDto) {
+    const { email } = payload;
+
+    const accessToken = await this.jwtToken(email);
+    const newUser = await this.userModel.create({
+      email: email,
+      isUser: true,
+      isGoogleAuth: true,
+      accessToken: accessToken.Response,
+      isAccountVerified: true,
+    });
+
+    return newUser;
   }
 
   async getAll(): Promise<UserDocument[]> {
@@ -109,5 +129,15 @@ export class UserService {
       }
       throw new InternalServerErrorException('Server Error');
     }
+  }
+
+  async jwtToken(payload: any) {
+    const jwtPayload = {
+      id: payload._id,
+    };
+
+    return {
+      Response: this.jwtService.sign(jwtPayload),
+    };
   }
 }

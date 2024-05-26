@@ -13,6 +13,7 @@ import { UserModule } from 'src/user/user.module';
 import { PlannerModule } from 'src/planner/planner.module';
 import { VendorModule } from 'src/vendor/vendor.module';
 import { OtpModule } from 'src/otp/module/otp.module';
+import { GoogleStrategy } from './strategy/google.strategy';
 require('dotenv').config();
 
 @Module({
@@ -22,9 +23,10 @@ require('dotenv').config();
     VendorModule,
     PassportModule,
     OtpModule,
+
     PassportModule.register({
       global: true,
-      defaultStrategy: 'jwt',
+      defaultStrategy: 'google',
     }),
     JwtModule.registerAsync({
       global: true,
@@ -45,6 +47,7 @@ require('dotenv').config();
     JwtAuthGuard,
     AuthResolver,
     JwtStrategy,
+    GoogleStrategy,
   ],
   exports: [AuthService],
 })

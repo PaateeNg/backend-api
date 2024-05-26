@@ -1,4 +1,5 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 import { Product, ProductDocument } from 'src/product/schema/product.schema';
 
@@ -13,19 +14,19 @@ export class ProductsAndCount {
 
 @ObjectType()
 class Meta {
-  @Field({ nullable: true })
+  @Field((type) => Int, { nullable: true })
   @IsOptional()
   total?: number;
 
-  @Field({ nullable: true })
+  @Field((type) => Int, { nullable: true })
   @IsOptional()
-  page?: number;
+  offSet?: number;
 
-  @Field({ nullable: true })
+  @Field((type) => Int, { nullable: true })
   @IsOptional()
-  size?: number;
+  limit?: number;
 
-  @Field({ nullable: true })
+  @Field((type) => Int, { nullable: true })
   @IsOptional()
   lastPage?: number;
 }

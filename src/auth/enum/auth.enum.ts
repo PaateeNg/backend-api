@@ -1,5 +1,5 @@
-export enum forgotPasswordUserType {
-  Vendor = 'isVendor',
-  IsUser = 'isUser',
-  IsPlanner = 'isPlanner',
+export enum UserTypeENum {
+  asVendor = 'asVendor',
+  asUser = 'asUser',
+  asPlanner = 'asPlanner',
 }

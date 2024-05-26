@@ -24,6 +24,10 @@ export class User {
   @Prop({ type: String, unique: true, required: true })
   email: string;
 
+  @Field(() => String, { nullable: true })
+  @Prop({ type: String })
+  accessToken?: string;
+
   @Field({ nullable: true })
   @Prop({ type: Number })
   phoneNumber?: number;
@@ -42,7 +46,8 @@ export class User {
 
   @Field(() => [String], { nullable: true })
   @Prop({
-    type: [mongoose.Schema.Types.ObjectId], ref: "Planner",
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'Planner',
     default: [],
   })
   bookedMenu?: string[];

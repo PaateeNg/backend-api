@@ -13,6 +13,8 @@ import { Model } from 'mongoose';
 import { returnString } from 'src/common/return/return.input';
 import { OtpService } from 'src/otp/service/otp.service';
 import { OtpEnumType } from 'src/otp/enum/otp.enum';
+import { JwtService } from '@nestjs/jwt';
+import { CreateAccountWithOughtDto } from 'src/auth/input-dto/auth-input.dto';
 
 @Injectable()
 export class VendorService {
@@ -20,6 +22,7 @@ export class VendorService {
     @InjectModel(Vendor.name)
     private vendorModel: Model<VendorDocument>,
     private otpService: OtpService,
+    private jwtService: JwtService,
   ) {}
 
   async createVendor(payload: VendorInput) {
@@ -43,6 +46,22 @@ export class VendorService {
       throw new InternalServerErrorException('Server Error');
     }
   }
+
+  async createVendorWithGoogle(payload: CreateAccountWithOughtDto) {
+    const { email } = payload;
+
+    const accessToken = await this.jwtToken(email);
+    const newUser = await this.vendorModel.create({
+      email: email,
+      isUser: true,
+      isGoogleAuth: true,
+      accessToken: accessToken.Response,
+      isAccountVerified: true,
+    });
+
+    return newUser;
+  }
+
   async getByEmailOrBusinessName(email: string, businessName: string) {
     const vendorExist = await this.vendorModel.findOne({
       email,
@@ -126,5 +145,15 @@ export class VendorService {
       return;
     }
     return vendor;
+  }
+
+  async jwtToken(payload: any) {
+    const jwtPayload = {
+      id: payload._id,
+    };
+
+    return {
+      Response: this.jwtService.sign(jwtPayload),
+    };
   }
 }

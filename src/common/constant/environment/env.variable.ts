@@ -20,4 +20,14 @@ export const ENVIRONMENT = {
     NOT_PAID: process.env.PAYMENT_NOT_PAID_STATUS,
     PAID: process.env.PAYMENT_PAID_STATUS,
   },
+
+  GOOGLE_OUGHT: {
+    CLIENT_ID: process.env.CLIENT_ID,
+    CLIENT_SECRET: process.env.CLIENT_SECRET,
+    CALL_BACK_URL: process.env.CALL_BACK_URL,
+    scope: [
+      'https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/userinfo.profile',
+    ],
+  },
 };

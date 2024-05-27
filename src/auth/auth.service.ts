@@ -19,18 +19,20 @@ import {
   PlanerInputDto,
 } from 'src/planner/input/planner.input.dto';
 import { UserDocument } from 'src/user/schema/user.schema';
-import { VendorDocument } from 'src/vendor/schema/vendor.schema';
+import { Vendor, VendorDocument } from 'src/vendor/schema/vendor.schema';
 import { PlannerDocument } from 'src/planner/schema/planner.schema';
 import {
   ChangePasswordDto,
+  CreateInputDto,
   ForgetPasswordDTO,
+  LoginInputDto,
   ResetPasswordDTO,
   VerifyAccountDto,
 } from './input-dto/auth-input.dto';
-import { GraphQLError } from 'graphql';
 import { OtpService } from 'src/otp/service/otp.service';
 import { OtpEnumType } from 'src/otp/enum/otp.enum';
-import { forgotPasswordUserType } from './enum/auth.enum';
+import { UserTypeENum } from './enum/auth.enum';
+import { CreateAccountWithOughtDto } from './input-dto/auth-input.dto';
 
 @Injectable()
 export class AuthService {
@@ -41,6 +43,68 @@ export class AuthService {
     private jwtService: JwtService,
     private otpService: OtpService,
   ) {}
+
+  async createAccount(payload: CreateInputDto) {
+    try {
+      const { userType } = payload;
+
+      if (userType === UserTypeENum.asUser) {
+        await this.createUser(payload);
+      } else if (userType === UserTypeENum.asVendor) {
+        await this.createVendor(payload);
+      } else if (userType === UserTypeENum.asPlanner) {
+        await this.createPlanner(payload);
+      }
+
+      return {
+        Response: 'User Sign Up Successfully, Kindly Verify Your Account',
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Server Error');
+    }
+  }
+
+  async login(payload: LoginInputDto) {
+    const { loginAs, email, password } = payload;
+    let loginDetails;
+
+    if (loginAs === UserTypeENum.asUser) {
+      loginDetails = await this.loginUser({
+        email: email,
+        password: password,
+      });
+    } else if (loginAs === UserTypeENum.asVendor) {
+      loginDetails = await this.loginVendor({
+        email: email,
+        password: password,
+      });
+    } else if (loginAs === UserTypeENum.asPlanner) {
+      loginDetails = await this.loginPlanner({
+        email: email,
+        password: password,
+      });
+    }
+    return loginDetails;
+  }
+
+  async createAccountWithGoogleOught(payload: CreateAccountWithOughtDto) {
+    const { userType, email } = payload;
+
+    let details;
+
+    if (userType === UserTypeENum.asUser) {
+      details = await this.createUserWithGoogle(payload);
+    } else if (userType === UserTypeENum.asVendor) {
+      details = await this.createVendorWithGoogle(payload);
+    } else if (userType === UserTypeENum.asPlanner) {
+      details = await this.createPlannerWithGoogle(payload);
+    }
+
+    return details;
+  }
 
   async createUser(payload: CreateUserInput) {
     try {
@@ -63,11 +127,7 @@ export class AuthService {
         }
       }
 
-      await this.userService.createUser(payload);
-
-      return {
-        Response: 'User Sign Up Successfully, Kindly Verify Your Account',
-      };
+      return await this.userService.createUser(payload);
     } catch (error) {
       if (error instanceof Error) {
         return { Response: error.message };
@@ -76,27 +136,36 @@ export class AuthService {
     }
   }
 
-  async loginUser(payload: LoginUserInput): Promise<returnString> {
+  async loginUser(payload: LoginUserInput): Promise<UserDocument> {
     try {
       const { email, password } = payload;
       const user = await this.userService.getByEmail(email);
 
       if (!user) {
-        throw new Error('Invalid User Credential');
+        throw new BadRequestException('Invalid User Credential');
       }
 
+      if (user.isGoogleAuth) {
+        throw new BadRequestException(`Can't Proceed`);
+      }
       if ((await comparePassword(password, user.password)) === false) {
-        throw new Error('your password is incorrect');
+        throw new BadRequestException('your password is incorrect');
       }
 
       if (!user.isAccountVerified) {
-        throw new Error('You have to verify your account before logging in');
+        throw new UnauthorizedException(
+          'You have to verify your account before logging in',
+        );
       }
 
-      return await this.jwtToken(user);
+      const accessToken = await this.jwtToken(user);
+      user.accessToken = accessToken.Response;
+      await user.save();
+
+      return user;
     } catch (error) {
-      if (error instanceof Error) {
-        return { Response: error.message };
+      if (error instanceof BadRequestException || UnauthorizedException) {
+        return error;
       }
       throw new InternalServerErrorException('Server Error');
     }
@@ -123,20 +192,16 @@ export class AuthService {
         }
       }
 
-      await this.vendorService.createVendor(payload);
-
-      return {
-        Response: 'Vendor Sign Up Successfully, Kindly Verify Your Account',
-      };
+      return await this.vendorService.createVendor(payload);
     } catch (error) {
       if (error instanceof BadRequestException) {
-        return { Response: error.message };
+        throw error;
       }
       throw new InternalServerErrorException('Server Error');
     }
   }
 
-  async loginVendor(payload: LoginVendorInput): Promise<returnString> {
+  async loginVendor(payload: LoginVendorInput): Promise<VendorDocument> {
     const { email, password } = payload;
     try {
       const vendor = await this.vendorService.getByEmail(email);
@@ -154,10 +219,14 @@ export class AuthService {
         );
       }
 
-      return await this.jwtToken(vendor);
+      const accessToken = await this.jwtToken(vendor);
+
+      vendor.accessToken = accessToken.Response;
+      await vendor.save();
+      return vendor;
     } catch (error) {
       if (error instanceof NotFoundException || BadRequestException) {
-        return { Response: error.message };
+        throw error;
       }
       throw new InternalServerErrorException('Server Error');
     }
@@ -183,20 +252,16 @@ export class AuthService {
         }
       }
 
-      await this.plannerService.createPlanner(payload);
-
-      return {
-        Response: 'Planner Sign Up Success, Kindly Verify Your Account',
-      };
+      return await this.plannerService.createPlanner(payload);
     } catch (error) {
       if (error instanceof BadRequestException) {
-        return { Response: error.message };
+        throw error;
       }
       throw new InternalServerErrorException('Server Error');
     }
   }
 
-  async loginPlanner(payload: LoginPlannerInput): Promise<returnString> {
+  async loginPlanner(payload: LoginPlannerInput): Promise<PlannerDocument> {
     const { email, password } = payload;
     try {
       const planner = await this.plannerService.getByEmail(email);
@@ -215,13 +280,77 @@ export class AuthService {
         );
       }
 
-      return await this.jwtToken(planner);
+      const accessToken = await this.jwtToken(planner);
+      planner.accessToken = accessToken.Response;
+      await planner.save();
+
+      return planner;
     } catch (error) {
       if (error instanceof BadRequestException) {
-        return { Response: error.message };
+        throw error;
       }
       throw new InternalServerErrorException('Server Error');
     }
+  }
+
+  async createUserWithGoogle(
+    payload: CreateAccountWithOughtDto,
+  ): Promise<UserDocument> {
+    const { email } = payload;
+
+    const userExist = await this.userService.getByEmail(email);
+
+    if (userExist) {
+      if (userExist.isGoogleAuth) {
+        const accessToken = await this.jwtToken(userExist);
+        userExist.accessToken = accessToken.Response;
+        await userExist.save();
+        return userExist;
+      } else {
+        throw new BadRequestException(`Can't Proceed`);
+      }
+    }
+    return await this.userService.createUserWithGoogle(payload);
+  }
+
+  async createVendorWithGoogle(
+    payload: CreateAccountWithOughtDto,
+  ): Promise<VendorDocument> {
+    const { email } = payload;
+
+    const userExist = await this.vendorService.getByEmail(email);
+
+    if (userExist) {
+      if (userExist.isGoogleAuth) {
+        const accessToken = await this.jwtToken(userExist);
+        userExist.accessToken = accessToken.Response;
+        await userExist.save();
+        return userExist;
+      } else {
+        throw new BadRequestException(`Can't Proceed`);
+      }
+    }
+    return await this.vendorService.createVendorWithGoogle(payload);
+  }
+
+  async createPlannerWithGoogle(
+    payload: CreateAccountWithOughtDto,
+  ): Promise<PlannerDocument> {
+    const { email } = payload;
+
+    const userExist = await this.plannerService.getByEmail(email);
+
+    if (userExist) {
+      if (userExist.isGoogleAuth) {
+        const accessToken = await this.jwtToken(userExist);
+        userExist.accessToken = accessToken.Response;
+        await userExist.save();
+        return userExist;
+      } else {
+        throw new BadRequestException(`Can't Proceed`);
+      }
+    }
+    return await this.plannerService.createPlannerWithGoogle(payload);
   }
 
   async getUserJwt(userId: string) {
@@ -234,7 +363,7 @@ export class AuthService {
     const iUser = user || planner || vendor;
 
     if (!iUser) {
-      throw new Error('Invalid User Token');
+      throw new BadRequestException('Invalid User Token');
     }
 
     return iUser;
@@ -274,15 +403,15 @@ export class AuthService {
 
     try {
       let user: any;
-      if (userType === forgotPasswordUserType.IsUser) {
+      if (userType === UserTypeENum.asUser) {
         user = await this.userService.getByEmail(email);
       }
 
-      if (userType === forgotPasswordUserType.Vendor) {
+      if (userType === UserTypeENum.asVendor) {
         user = await this.vendorService.getByEmail(email);
       }
 
-      if (userType === forgotPasswordUserType.IsPlanner) {
+      if (userType === UserTypeENum.asPlanner) {
         user = await this.plannerService.getByEmail(email);
       }
 
@@ -313,15 +442,15 @@ export class AuthService {
     try {
       let user: any;
 
-      if (userType === forgotPasswordUserType.IsUser) {
+      if (userType === UserTypeENum.asUser) {
         user = await this.userService.getByEmail(email);
       }
 
-      if (userType === forgotPasswordUserType.Vendor) {
+      if (userType === UserTypeENum.asVendor) {
         user = await this.vendorService.getByEmail(email);
       }
 
-      if (userType === forgotPasswordUserType.IsPlanner) {
+      if (userType === UserTypeENum.asPlanner) {
         user = await this.plannerService.getByEmail(email);
       }
 
@@ -355,15 +484,15 @@ export class AuthService {
     try {
       let user: any;
 
-      if (userType === forgotPasswordUserType.IsUser) {
+      if (userType === UserTypeENum.asUser) {
         user = await this.userService.getByEmail(email);
       }
 
-      if (userType === forgotPasswordUserType.Vendor) {
+      if (userType === UserTypeENum.asVendor) {
         user = await this.vendorService.getByEmail(email);
       }
 
-      if (userType === forgotPasswordUserType.IsPlanner) {
+      if (userType === UserTypeENum.asPlanner) {
         user = await this.plannerService.getByEmail(email);
       }
 

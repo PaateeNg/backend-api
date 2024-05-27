@@ -4,7 +4,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PlanerInputDto, updatePlannerDto } from './input/planner.input.dto';
+import { updatePlannerDto, PlanerInputDto } from './input/planner.input.dto';
 import { hashed } from 'src/common/hashed/util.hash';
 import { InjectModel } from '@nestjs/mongoose';
 import { Planner, PlannerDocument } from './schema/planner.schema';
@@ -12,6 +12,8 @@ import { Model } from 'mongoose';
 import { ENVIRONMENT } from 'src/common/constant/environment/env.variable';
 import { OtpService } from 'src/otp/service/otp.service';
 import { OtpEnumType } from 'src/otp/enum/otp.enum';
+import { JwtService } from '@nestjs/jwt';
+import { CreateAccountWithOughtDto } from 'src/auth/input-dto/auth-input.dto';
 
 @Injectable()
 export class PlannerService {
@@ -19,6 +21,7 @@ export class PlannerService {
     @InjectModel(Planner.name)
     private plannerModel: Model<PlannerDocument>,
     private otpService: OtpService,
+    private jwtService: JwtService,
   ) {}
 
   async createPlanner(payload: PlanerInputDto) {
@@ -41,6 +44,21 @@ export class PlannerService {
     } catch (error) {
       throw new InternalServerErrorException('Server Error');
     }
+  }
+
+  async createPlannerWithGoogle(payload: CreateAccountWithOughtDto) {
+    const { email } = payload;
+
+    const accessToken = await this.jwtToken(email);
+    const newUser = await this.plannerModel.create({
+      email: email,
+      isUser: true,
+      isGoogleAuth: true,
+      accessToken: accessToken.Response,
+      isAccountVerified: true,
+    });
+
+    return newUser;
   }
 
   async getPlanerByEmailOrBusinessName(email: string, businessName: string) {
@@ -123,5 +141,15 @@ export class PlannerService {
     }
 
     return planner;
+  }
+
+  async jwtToken(payload: any) {
+    const jwtPayload = {
+      id: payload._id,
+    };
+
+    return {
+      Response: this.jwtService.sign(jwtPayload),
+    };
   }
 }

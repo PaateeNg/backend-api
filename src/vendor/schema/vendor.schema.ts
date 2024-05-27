@@ -19,9 +19,17 @@ export class Vendor {
   @Prop({ type: String })
   lastName?: string;
 
+  @Field(() => String, { nullable: true })
+  @Prop({ type: String })
+  accessToken?: string;
+
   @Field({ nullable: true })
   @Prop({ type: Boolean, required: true, default: false })
   isVendor: boolean;
+
+  @Field({ nullable: true })
+  @Prop({ type: Boolean, required: true, default: false })
+  isGoogleAuth: boolean;
 
   @Field()
   @Prop({ type: String })

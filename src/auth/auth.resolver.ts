@@ -2,68 +2,42 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { returnString } from 'src/common/return/return.input';
 import { AuthService } from './auth.service';
-import { CreateUserInput, LoginUserInput } from 'src/user/input/user.input.dto';
-import { LoginVendorInput, VendorInput } from 'src/vendor/input/vendor.input';
-import {
-  LoginPlannerInput,
-  PlanerInputDto,
-} from 'src/planner/input/planner.input.dto';
 import {
   ChangePasswordDto,
   ForgetPasswordDTO,
+  LoginInputDto,
   ResetPasswordDTO,
   VerifyAccountDto,
 } from './input-dto/auth-input.dto';
 import { GqlAuthGuard } from './guards/graphql.guard';
-import { UserDocument } from 'src/user/schema/user.schema';
-import { VendorDocument } from 'src/vendor/schema/vendor.schema';
-import { Planner, PlannerDocument } from 'src/planner/schema/planner.schema';
+import { UserDocument, User } from 'src/user/schema/user.schema';
+import { VendorDocument, Vendor } from 'src/vendor/schema/vendor.schema';
+import { PlannerDocument, Planner } from 'src/planner/schema/planner.schema';
 import { GetCurrentGqlUser } from './decorators/graphQl.decorator';
+import { CreateAccountWithOughtDto } from './input-dto/auth-input.dto';
+import { CreateInputDto } from './input-dto/auth-input.dto';
 
 @Resolver()
 export class AuthResolver {
   constructor(private authService: AuthService) {}
 
   @Mutation((returns) => returnString)
-  async createUser(
-    @Args('payload') payload: CreateUserInput,
+  async createAccount(
+    @Args('payload') payload: CreateInputDto,
   ): Promise<returnString> {
-    return await this.authService.createUser(payload);
+    return await this.authService.createAccount(payload);
   }
 
-  @Mutation((returns) => returnString)
-  async loginUser(
-    @Args('payload') payload: LoginUserInput,
-  ): Promise<returnString> {
-    return await this.authService.loginUser(payload);
+  @Mutation((returns) => User)
+  async createAccountWithGoogleOught(
+    @Args('payload') payload: CreateAccountWithOughtDto,
+  ): Promise<UserDocument> {
+    return await this.authService.createAccountWithGoogleOught(payload);
   }
 
-  @Mutation((returns) => returnString)
-  async createVendor(
-    @Args('payload') payload: VendorInput,
-  ): Promise<returnString> {
-    return await this.authService.createVendor(payload);
-  }
-
-  @Mutation((returns) => returnString)
-  async loginVendor(
-    @Args('payload') payload: LoginVendorInput,
-  ): Promise<returnString> {
-    return await this.authService.loginVendor(payload);
-  }
-
-  @Mutation((returns) => returnString)
-  async createPlanner(
-    @Args('payload') payload: PlanerInputDto,
-  ): Promise<returnString> {
-    return await this.authService.createPlanner(payload);
-  }
-
-  @Mutation((returns) => returnString)
-  async loginPlanner(
-    @Args('payload') payload: LoginPlannerInput,
-  ): Promise<returnString> {
-    return await this.authService.loginPlanner(payload);
+  @Mutation((returns) => User)
+  async login(@Args('payload') payload: LoginInputDto) {
+    return await this.authService.login(payload);
   }
 
   @Mutation((returns) => returnString)

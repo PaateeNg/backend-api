@@ -7,10 +7,10 @@ export class PaginationDto {
   @Field(() => Int, { nullable: true })
   @IsOptional()
   @IsNumber()
-  page?: number;
+  offSet?: number;
 
   @Field(() => Int, { nullable: true })
   @IsOptional()
   @IsNumber()
-  size?: number;
+  limit?: number;
 }

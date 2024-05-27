@@ -1,5 +1,4 @@
 import {
-  BadGatewayException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -17,16 +16,15 @@ import { Model } from 'mongoose';
 import { VendorDocument } from 'src/vendor/schema/vendor.schema';
 import { ProductDetails, ProductsAndCount } from './input/return/return.input';
 import { returnString } from 'src/common/return/return.input';
-import { Query } from 'express-serve-static-core';
-import { PaginationDto } from 'src/repository/dto/repository.dto';
-import { RepositoryService } from 'src/repository/repository.service';
+import { PaginationService } from 'src/pagination/pagination.service';
+import { PaginationDto } from 'src/pagination/dto/pagination.dto';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name)
     private productModel: Model<ProductDocument>,
-    private repositoryService: RepositoryService,
+    private repositoryService: PaginationService,
   ) {}
 
   async create(

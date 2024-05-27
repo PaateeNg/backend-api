@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { PaginationDto } from './dto/repository.dto';
+import { PaginationDto } from './dto/pagination.dto';
 
 @Injectable()
-export class RepositoryService {
+export class PaginationService {
   constructor() {}
   async pagination(model: any, query?: PaginationDto, options?: any) {
-    const { page = 1, size = 10 } = query;
-    const skip = (page - 1) * size;
+    const { offSet = 1, limit = 10 } = query;
+    const skip = (offSet - 1) * limit;
 
     const [data, total] = await Promise.all([
       model
@@ -14,13 +14,13 @@ export class RepositoryService {
           ...options,
         })
         .skip(skip)
-        .limit(size > 100 ? 100 : size),
+        .limit(limit > 100 ? 100 : limit),
       model.countDocuments({ ...options }),
     ]);
 
     return {
       data,
-      metadata: { total, page, size, lastPage: Math.ceil(total / size) },
+      metadata: { total, offSet, limit, lastPage: Math.ceil(total / limit) },
     };
   }
 }

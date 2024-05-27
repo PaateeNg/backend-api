@@ -15,7 +15,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
 import { returnString } from 'src/common/return/return.input';
-import { PaginationDto } from 'src/repository/dto/repository.dto';
+import { PaginationDto } from 'src/pagination/dto/pagination.dto';
 
 @Resolver()
 export class ProductResolver {

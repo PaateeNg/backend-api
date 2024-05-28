@@ -24,8 +24,9 @@ import { PlannerDocument } from 'src/planner/schema/planner.schema';
 import {
   ChangePasswordDto,
   CreateInputDto,
-  ForgetPasswordDTO,
+  ForgotPasswordDTO,
   LoginInputDto,
+  RequestOtpDTO,
   ResetPasswordDTO,
   VerifyAccountDto,
 } from './input-dto/auth-input.dto';
@@ -398,7 +399,7 @@ export class AuthService {
     }
   }
 
-  async forgotPassword(payload: ForgetPasswordDTO): Promise<returnString> {
+  async forgotPassword(payload: ForgotPasswordDTO): Promise<returnString> {
     const { email, userType } = payload;
 
     try {
@@ -416,21 +417,19 @@ export class AuthService {
       }
 
       if (!user) {
-        throw new Error('Invalid email');
+        throw new BadRequestException('Invalid email');
       }
 
-      if (user) {
-        await this.otpService.sendOtp({
-          email: email,
-          type: OtpEnumType.ResetPassword,
-        });
-        return {
-          Response: 'Otp Sent',
-        };
-      }
+      await this.otpService.sendOtp({
+        email: email,
+        type: OtpEnumType.ResetPassword,
+      });
+      return {
+        Response: 'Otp Sent',
+      };
     } catch (error) {
-      if (error instanceof Error) {
-        return { Response: error.message };
+      if (error instanceof BadRequestException) {
+        throw error;
       }
       throw new InternalServerErrorException('Server Error');
     }
@@ -455,7 +454,7 @@ export class AuthService {
       }
 
       if (!user) {
-        throw new Error('Invalid user');
+        throw new BadRequestException('Invalid Email');
       }
 
       const otp = await this.otpService.verifyOtp({
@@ -472,8 +471,8 @@ export class AuthService {
         Response: 'Password Reset Successfully',
       };
     } catch (error) {
-      if (error instanceof Error) {
-        return { Response: error.message };
+      if (error instanceof BadRequestException) {
+        throw error;
       }
       throw new InternalServerErrorException('Server Error');
     }
@@ -496,6 +495,10 @@ export class AuthService {
         user = await this.plannerService.getByEmail(email);
       }
 
+      if (!user) {
+        throw new BadRequestException('Invalid Email');
+      }
+
       await this.otpService.verifyOtp({
         email,
         code,
@@ -510,8 +513,44 @@ export class AuthService {
         Response: 'Account is Now Verified',
       };
     } catch (error) {
-      if (error instanceof Error) {
-        return { Response: error.message };
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Server Error');
+    }
+  }
+
+  async requestOtp(payload: RequestOtpDTO): Promise<returnString> {
+    const { email, userType, type } = payload;
+
+    try {
+      let user: any;
+      if (userType === UserTypeENum.asUser) {
+        user = await this.userService.getByEmail(email);
+      }
+
+      if (userType === UserTypeENum.asVendor) {
+        user = await this.vendorService.getByEmail(email);
+      }
+
+      if (userType === UserTypeENum.asPlanner) {
+        user = await this.plannerService.getByEmail(email);
+      }
+
+      if (!user) {
+        throw new BadRequestException('Invalid email');
+      }
+
+      await this.otpService.sendOtp({
+        email: email,
+        type: type,
+      });
+      return {
+        Response: 'Otp Sent',
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
       }
       throw new InternalServerErrorException('Server Error');
     }

@@ -1,6 +1,7 @@
 import { Field } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { OtpEnumType } from '../enum/otp.enum';
 
 export type otpDocument = Otp & Document;
 
@@ -10,9 +11,9 @@ export class Otp {
   @Prop({ type: String, required: true })
   email: string;
 
-  @Field()
-  @Prop({ type: String, required: true })
-  type: string;
+  @Field(() => OtpEnumType)
+  @Prop({ type: String, enum: OtpEnumType, required: true })
+  type: OtpEnumType;
 
   @Field()
   @Prop({ type: Number, required: true })

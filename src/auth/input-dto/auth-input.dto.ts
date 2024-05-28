@@ -9,6 +9,7 @@ import {
   IsString,
 } from 'class-validator';
 import { UserTypeENum } from '../enum/auth.enum';
+import { OtpEnumType } from 'src/otp/enum/otp.enum';
 
 @InputType()
 export class ChangePasswordDto {
@@ -24,7 +25,7 @@ export class ChangePasswordDto {
 }
 
 @InputType()
-export class ForgetPasswordDTO {
+export class ForgotPasswordDTO {
   @Field()
   @IsNotEmpty()
   @IsEmail()
@@ -134,4 +135,22 @@ export class LoginInputDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+}
+
+@InputType()
+export class RequestOtpDTO {
+  @Field()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsEnum(OtpEnumType)
+  type: OtpEnumType;
+
+  @Field()
+  @IsNotEmpty()
+  @IsEnum(UserTypeENum)
+  userType: UserTypeENum;
 }

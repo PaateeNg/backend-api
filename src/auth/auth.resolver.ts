@@ -4,8 +4,9 @@ import { returnString } from 'src/common/return/return.input';
 import { AuthService } from './auth.service';
 import {
   ChangePasswordDto,
-  ForgetPasswordDTO,
+  ForgotPasswordDTO,
   LoginInputDto,
+  RequestOtpDTO,
   ResetPasswordDTO,
   VerifyAccountDto,
 } from './input-dto/auth-input.dto';
@@ -52,7 +53,7 @@ export class AuthResolver {
 
   @Mutation((returns) => returnString)
   async forgotPassword(
-    @Args('payload') payload: ForgetPasswordDTO,
+    @Args('payload') payload: ForgotPasswordDTO,
   ): Promise<returnString> {
     return await this.authService.forgotPassword(payload);
   }
@@ -69,6 +70,13 @@ export class AuthResolver {
     @Args('payload') payload: VerifyAccountDto,
   ): Promise<returnString> {
     return await this.authService.verifyAccount(payload);
+  }
+
+  @Mutation((returns) => returnString)
+  async requestOTP(
+    @Args('payload') payload: RequestOtpDTO,
+  ): Promise<returnString> {
+    return await this.authService.requestOtp(payload);
   }
 
   @Query((returns) => returnString)

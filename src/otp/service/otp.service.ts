@@ -10,6 +10,7 @@ import { CreateOtpDto, SendOtpDto, VerifyOtpDto } from '../dto/otp.dto';
 import { OtpEnumType } from '../enum/otp.enum';
 import { ConstantMessage } from 'src/common/constant/message/message.constant';
 import { EmailService } from 'src/mail/mail.service';
+import { generateOTP } from 'src/common/utils/otp-generate/generate-otp-code';
 
 @Injectable()
 export class OtpService {
@@ -19,23 +20,27 @@ export class OtpService {
   ) {}
 
   async createOtp(payload: CreateOtpDto) {
-    const { email } = payload;
+    const { email, type } = payload;
 
-    const otp = await this.otpModel.findOne({ email: email });
+    const otp = await this.otpModel.findOne({ email, type });
 
-    if (otp) {
-      await this.otpModel.findOneAndUpdate({ email: email }, payload, {
-        new: true,
-      });
+    if (!otp) {
+      return await this.otpModel.create({ ...payload });
     }
-
-    return await this.otpModel.create({ ...payload });
+    return await this.otpModel.findByIdAndUpdate(
+      { _id: otp._id },
+      { ...payload },
+      {
+        new: true,
+        upsert: true,
+      },
+    );
   }
 
   async sendOtp(payload: SendOtpDto) {
     const { email, type } = payload;
 
-    const code = 2345;
+    const code = generateOTP();
 
     let template: any;
     let subject: any;
@@ -67,8 +72,13 @@ export class OtpService {
 
   async verifyOtp(payload: VerifyOtpDto) {
     try {
-      const { email, code } = payload;
-      const otp = await this.otpModel.findOne({ email: email, code: code });
+      const { email, code, type } = payload;
+
+      const otp = await this.otpModel.findOne({
+        email: email,
+        code: code,
+        type: type,
+      });
       if (!otp) {
         throw new BadRequestException('Otp is either invalid or has expired');
       }

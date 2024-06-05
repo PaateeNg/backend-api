@@ -5,7 +5,7 @@ import { OtpEnumType } from '../enum/otp.enum';
 
 export type otpDocument = Otp & Document;
 
-@Schema({ expires: 300 })
+@Schema({ expireAfterSeconds: 3600 })
 export class Otp {
   @Field()
   @Prop({ type: String, required: true })
@@ -24,7 +24,7 @@ export class Otp {
   createdAt: Date;
 
   @Field()
-  @Prop({ type: Date, default: Date.now(), expires: 300 })
+  @Prop({ type: Date, default: Date.now(), expireAfterSeconds: 3600 })
   expires: Date;
 }
 

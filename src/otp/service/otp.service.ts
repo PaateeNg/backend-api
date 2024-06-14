@@ -64,7 +64,7 @@ export class OtpService {
       throw new InternalServerErrorException('Error while Generating Otp');
     }
 
-    await this.mailerService.sendMessage(email, subject, template);
+    // await this.mailerService.sendMessage(email, subject, template);
     return {
       Response: 'otp sent',
     };

@@ -14,6 +14,8 @@ import { PlannerModule } from 'src/planner/planner.module';
 import { VendorModule } from 'src/vendor/vendor.module';
 import { OtpModule } from 'src/otp/module/otp.module';
 import { GoogleStrategy } from './strategy/google.strategy';
+import { APP_GUARD } from '@nestjs/core';
+import { GqlThrottlerGuard } from './guards/throller.guard';
 require('dotenv').config();
 
 @Module({
@@ -48,6 +50,11 @@ require('dotenv').config();
     AuthResolver,
     JwtStrategy,
     GoogleStrategy,
+
+    {
+      provide: APP_GUARD,
+      useClass: GqlThrottlerGuard,
+    },
   ],
   exports: [AuthService],
 })

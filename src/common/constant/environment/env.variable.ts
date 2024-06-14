@@ -21,6 +21,11 @@ export const ENVIRONMENT = {
     PAID: process.env.PAYMENT_PAID_STATUS,
   },
 
+  THROTTLER: {
+    TTL: +process.env.TTL,
+    TT_LIMIT: +process.env.TT_LIMIT,
+  },
+
   GOOGLE_OUGHT: {
     CLIENT_ID: process.env.CLIENT_ID,
     CLIENT_SECRET: process.env.CLIENT_SECRET,

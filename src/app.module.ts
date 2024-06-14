@@ -14,11 +14,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { OtpModule } from './otp/module/otp.module';
 import { PaginationModule } from './pagination/pagination.module';
 import { PaymentModule } from './payment/module/payment.module';
+import { ThrottlerMod } from './throller/throller.module';
 
 require('dotenv').config();
 
 @Module({
   imports: [
+    ThrottlerMod,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

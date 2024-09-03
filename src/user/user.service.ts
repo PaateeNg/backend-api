@@ -31,10 +31,10 @@ export class UserService {
         isUser: true,
       });
 
-      await this.otpService.sendOtp({
-        email: email,
-        type: OtpEnumType.AccountVerification,
-      });
+      // await this.otpService.sendOtp({
+      //   email: email,
+      //   type: OtpEnumType.AccountVerification,
+      // });
 
       return newUser;
     } catch (error) {

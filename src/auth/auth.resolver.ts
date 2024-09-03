@@ -23,9 +23,7 @@ export class AuthResolver {
   constructor(private authService: AuthService) {}
 
   @Mutation((returns) => returnString)
-  async createAccount(
-    @Args('payload') payload: CreateInputDto,
-  ): Promise<returnString> {
+  async createAccount(@Args('payload') payload: CreateInputDto): Promise<any> {
     return await this.authService.createAccount(payload);
   }
 

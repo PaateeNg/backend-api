@@ -50,16 +50,16 @@ export class AuthService {
       const { userType } = payload;
 
       if (userType === UserTypeENum.asUser) {
-        await this.createUser(payload);
+        return await this.createUser(payload);
       } else if (userType === UserTypeENum.asVendor) {
-        await this.createVendor(payload);
+        return await this.createVendor(payload);
       } else if (userType === UserTypeENum.asPlanner) {
-        await this.createPlanner(payload);
+        return await this.createPlanner(payload);
       }
 
-      return {
-        Response: 'User Sign Up Successfully, Kindly Verify Your Account',
-      };
+      // return {
+      //   Response: 'User Sign Up Successfully, Kindly Verify Your Account',
+      // };
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
@@ -114,21 +114,24 @@ export class AuthService {
       const userExist = await this.userService.getByEmail(email);
 
       if (userExist) {
-        if (!userExist.isAccountVerified) {
-          await this.otpService.sendOtp({
-            email: userExist.email,
-            type: OtpEnumType.AccountVerification,
-          });
-
-          return {
-            Response: 'User Sign Up Successfully, Kindly Verify Your Account',
-          };
-        } else if (userExist.isAccountVerified) {
-          throw new Error('User with the same email already exists');
-        }
+        throw new BadRequestException('user Already Exist');
+        // if (!userExist.isAccountVerified) {
+        //   await this.otpService.sendOtp({
+        //     email: userExist.email,
+        //     type: OtpEnumType.AccountVerification,
+        //   });
+        //   return {
+        //     Response: 'User Sign Up Successfully, Kindly Verify Your Account',
+        //   };
+        // } else if (userExist.isAccountVerified) {
+        //   throw new Error('User with the same email already exists');
+        // }
       }
 
-      return await this.userService.createUser(payload);
+      await this.userService.createUser(payload);
+      return {
+        Response: 'User Sign Up Successfully, Kindly Verify Your Account',
+      };
     } catch (error) {
       if (error instanceof Error) {
         return { Response: error.message };
@@ -153,11 +156,11 @@ export class AuthService {
         throw new BadRequestException('your password is incorrect');
       }
 
-      if (!user.isAccountVerified) {
-        throw new UnauthorizedException(
-          'You have to verify your account before logging in',
-        );
-      }
+      // if (!user.isAccountVerified) {
+      //   throw new UnauthorizedException(
+      //     'You have to verify your account before logging in',
+      //   );
+      // }
 
       const accessToken = await this.jwtToken(user);
       user.accessToken = accessToken.Response;
@@ -179,21 +182,25 @@ export class AuthService {
       const vendorExist = await this.vendorService.getByEmail(email);
 
       if (vendorExist) {
-        if (!vendorExist.isAccountVerified) {
-          await this.otpService.sendOtp({
-            email: vendorExist.email,
-            type: OtpEnumType.AccountVerification,
-          });
+        throw new BadRequestException('Vendor Already Exist');
+        // if (!vendorExist.isAccountVerified) {
+        //   await this.otpService.sendOtp({
+        //     email: vendorExist.email,
+        //     type: OtpEnumType.AccountVerification,
+        //   });
 
-          return {
-            Response: 'Vendor Sign Up Successfully, Kindly Verify Your Account',
-          };
-        } else if (vendorExist.isAccountVerified) {
-          throw new BadRequestException('Vendor Already Exist');
-        }
+        //   return {
+        //     Response: 'Vendor Sign Up Successfully, Kindly Verify Your Account',
+        //   };
+        // } else if (vendorExist.isAccountVerified) {
+        //   throw new BadRequestException('Vendor Already Exist');
+        // }
       }
 
-      return await this.vendorService.createVendor(payload);
+      await this.vendorService.createVendor(payload);
+      return {
+        Response: 'Vendor Sign Up Successfully, Kindly Verify Your Account',
+      };
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
@@ -214,11 +221,11 @@ export class AuthService {
         throw new BadRequestException('Incorrect Password');
       }
 
-      if (!vendor.isAccountVerified) {
-        throw new BadRequestException(
-          'You have to verify your account before logging in',
-        );
-      }
+      // if (!vendor.isAccountVerified) {
+      //   throw new BadRequestException(
+      //     'You have to verify your account before logging in',
+      //   );
+      // }
 
       const accessToken = await this.jwtToken(vendor);
 
@@ -240,20 +247,24 @@ export class AuthService {
       const plannerExist = await this.plannerService.getByEmail(email);
 
       if (plannerExist) {
-        if (!plannerExist.isAccountVerified) {
-          await this.otpService.sendOtp({
-            email: email,
-            type: OtpEnumType.AccountVerification,
-          });
-          return {
-            Response: 'Planner Sign Up Success, Kindly Verify Your Account',
-          };
-        } else if (plannerExist.isAccountVerified) {
-          throw new BadRequestException('User Already Exist');
-        }
+        throw new BadRequestException('User Already Exist');
+        // if (!plannerExist.isAccountVerified) {
+        //   await this.otpService.sendOtp({
+        //     email: email,
+        //     type: OtpEnumType.AccountVerification,
+        //   });
+        //   return {
+        //     Response: 'Planner Sign Up Success, Kindly Verify Your Account',
+        //   };
+        // } else if (plannerExist.isAccountVerified) {
+        //   throw new BadRequestException('User Already Exist');
+        // }
       }
 
-      return await this.plannerService.createPlanner(payload);
+      await this.plannerService.createPlanner(payload);
+      return {
+        Response: 'Planner Sign Up Success, Kindly Verify Your Account',
+      };
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
@@ -275,11 +286,11 @@ export class AuthService {
         throw new BadRequestException('your password is incorrect');
       }
 
-      if (!planner.isAccountVerified) {
-        throw new BadRequestException(
-          'You have to verify your account before logging in',
-        );
-      }
+      // if (!planner.isAccountVerified) {
+      //   throw new BadRequestException(
+      //     'You have to verify your account before logging in',
+      //   );
+      // }
 
       const accessToken = await this.jwtToken(planner);
       planner.accessToken = accessToken.Response;

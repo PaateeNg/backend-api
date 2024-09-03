@@ -35,10 +35,10 @@ export class PlannerService {
         isPlanner: true,
       });
 
-      await this.otpService.sendOtp({
-        email: email,
-        type: OtpEnumType.AccountVerification,
-      });
+      // await this.otpService.sendOtp({
+      //   email: email,
+      //   type: OtpEnumType.AccountVerification,
+      // });
 
       return savedPlanner;
     } catch (error) {

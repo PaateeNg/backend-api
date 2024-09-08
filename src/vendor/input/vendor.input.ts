@@ -2,11 +2,13 @@ import { Field, InputType, PartialType } from '@nestjs/graphql';
 import { Exclude } from 'class-transformer';
 import {
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
+import { UserTypeENum } from 'src/auth/enum/auth.enum';
 
 @InputType()
 export class VendorInput {
@@ -14,6 +16,23 @@ export class VendorInput {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsString()
+  state: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsString()
+  city: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsString()
+  business_phone: string;
+
+
 
   @Field()
   @IsNotEmpty()

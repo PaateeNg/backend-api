@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { comparePassword, hashed } from 'src/common/hashed/util.hash';
 import { JwtService } from '@nestjs/jwt';
-
 import { returnString } from 'src/common/return/return.input';
 import { UserService } from 'src/user/user.service';
 import { PlannerService } from 'src/planner/planner.service';
@@ -45,28 +44,28 @@ export class AuthService {
     private otpService: OtpService,
   ) {}
 
-  async createAccount(payload: CreateInputDto) {
-    try {
-      const { userType } = payload;
+  // async createAccount(payload: CreateInputDto) {
+  //   try {
+  //     const { userType } = payload;
 
-      if (userType === UserTypeENum.asUser) {
-        return await this.createUser(payload);
-      } else if (userType === UserTypeENum.asVendor) {
-        return await this.createVendor(payload);
-      } else if (userType === UserTypeENum.asPlanner) {
-        return await this.createPlanner(payload);
-      }
+  //     if (userType === UserTypeENum.asUser) {
+  //       return await this.createUser(payload);
+  //     } else if (userType === UserTypeENum.asVendor) {
+  //       return await this.createVendor(payload);
+  //     } else if (userType === UserTypeENum.asPlanner) {
+  //       return await this.createPlanner(payload);
+  //     }
 
-      // return {
-      //   Response: 'User Sign Up Successfully, Kindly Verify Your Account',
-      // };
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Server Error');
-    }
-  }
+  //     // return {
+  //     //   Response: 'User Sign Up Successfully, Kindly Verify Your Account',
+  //     // };
+  //   } catch (error) {
+  //     if (error instanceof BadRequestException) {
+  //       throw error;
+  //     }
+  //     throw new InternalServerErrorException('Server Error');
+  //   }
+  // }
 
   async login(payload: LoginInputDto) {
     const { loginAs, email, password } = payload;
@@ -107,14 +106,14 @@ export class AuthService {
     return details;
   }
 
-  async createUser(payload: CreateUserInput) {
+  async createCustomer(payload: CreateUserInput) {
     try {
       const { email } = payload;
 
       const userExist = await this.userService.getByEmail(email);
 
       if (userExist) {
-        throw new BadRequestException('user Already Exist');
+        throw new BadRequestException('User Already Exist');
         // if (!userExist.isAccountVerified) {
         //   await this.otpService.sendOtp({
         //     email: userExist.email,
@@ -129,6 +128,7 @@ export class AuthService {
       }
 
       await this.userService.createUser(payload);
+
       return {
         Response: 'User Sign Up Successfully, Kindly Verify Your Account',
       };
@@ -176,7 +176,7 @@ export class AuthService {
   }
 
   async createVendor(payload: VendorInput) {
-    const { email } = payload;
+    const { email, city, business_phone } = payload;
 
     try {
       const vendorExist = await this.vendorService.getByEmail(email);
@@ -198,6 +198,7 @@ export class AuthService {
       }
 
       await this.vendorService.createVendor(payload);
+
       return {
         Response: 'Vendor Sign Up Successfully, Kindly Verify Your Account',
       };

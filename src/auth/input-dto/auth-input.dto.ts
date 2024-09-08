@@ -117,6 +117,21 @@ export class CreateInputDto {
   @IsNotEmpty()
   @IsString()
   password: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  state: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  city: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  business_phone: string;
 }
 
 @InputType()

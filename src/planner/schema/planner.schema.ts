@@ -24,6 +24,18 @@ export class Planner {
   @Prop({ type: String })
   lastName?: string;
 
+  @Field()
+  @Prop({ type: String })
+  state: string;
+
+  @Field()
+  @Prop({ type: String })
+  business_phone: string;
+
+  @Field()
+  @Prop({ type: String })
+  city: string;
+
   @Field({ nullable: true })
   @Prop({ type: String })
   password: string;

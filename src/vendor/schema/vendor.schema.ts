@@ -39,6 +39,18 @@ export class Vendor {
   @Prop({ type: String })
   businessName: string;
 
+  @Field({ nullable: true })
+  @Prop({ type: String })
+  state: string;
+
+  @Field()
+  @Prop({ type: String })
+  business_phone: string;
+
+  @Field()
+  @Prop({ type: String })
+  city: string;
+
   @Field(() => [String])
   @Prop({ type: [String], enum: Role, default: Role.VENDOR, required: true })
   role: Role[];

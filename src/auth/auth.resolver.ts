@@ -17,14 +17,38 @@ import { PlannerDocument, Planner } from 'src/planner/schema/planner.schema';
 import { GetCurrentGqlUser } from './decorators/graphQl.decorator';
 import { CreateAccountWithOughtDto } from './input-dto/auth-input.dto';
 import { CreateInputDto } from './input-dto/auth-input.dto';
+import { CreateUserInput } from 'src/user/input/user.input.dto';
+import { VendorInput } from 'src/vendor/input/vendor.input';
+import { PlanerInputDto } from 'src/planner/input/planner.input.dto';
 
 @Resolver()
 export class AuthResolver {
   constructor(private authService: AuthService) {}
 
+  // @Mutation((returns) => returnString)
+  // async createAccount(@Args('payload') payload: CreateInputDto): Promise<any> {
+  //   return await this.authService.createAccount(payload);
+  // }
+
   @Mutation((returns) => returnString)
-  async createAccount(@Args('payload') payload: CreateInputDto): Promise<any> {
-    return await this.authService.createAccount(payload);
+  async createCustomer(
+    @Args('payload') payload: CreateUserInput,
+  ): Promise<returnString> {
+    return await this.authService.createCustomer(payload);
+  }
+
+  @Mutation((returns) => returnString)
+  async createVendor(
+    @Args('payload') payload: VendorInput,
+  ): Promise<returnString> {
+    return await this.authService.createVendor(payload);
+  }
+
+  @Mutation((returns) => returnString)
+  async createPlanner(
+    @Args('payload') payload: PlanerInputDto,
+  ): Promise<returnString> {
+    return await this.authService.createPlanner(payload);
   }
 
   @Mutation((returns) => User)

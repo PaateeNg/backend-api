@@ -1,5 +1,12 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { UserTypeENum } from 'src/auth/enum/auth.enum';
 
 @InputType()
 export class PlanerInputDto {
@@ -7,6 +14,21 @@ export class PlanerInputDto {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsString()
+  state: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsString()
+  city: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsString()
+  business_phone: string;
 
   @Field()
   @IsNotEmpty()

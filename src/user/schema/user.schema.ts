@@ -17,7 +17,7 @@ export class User {
   lastName?: string;
 
   @Field({ nullable: true })
-  @Prop({ type: String, required: true, default: 'IsUser' })
+  @Prop({ type: String, required: true, default: 'customer' })
   userType: string;
 
   @Field({ nullable: true })

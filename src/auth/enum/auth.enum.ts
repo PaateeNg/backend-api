@@ -1,5 +1,5 @@
 export enum UserTypeENum {
-  asVendor = 'asVendor',
-  asUser = 'asUser',
-  asPlanner = 'asPlanner',
+  vendor = 'vendor',
+  customer = 'customer',
+  planner = 'planner',
 }

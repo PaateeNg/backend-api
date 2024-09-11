@@ -17,7 +17,7 @@ export class Planner {
   firstName?: string;
 
   @Field({ nullable: true })
-  @Prop({ type: String, required: true, default: 'IsPlanner' })
+  @Prop({ type: String, required: true, default: 'planner' })
   userType: string;
 
   @Field({ nullable: true })

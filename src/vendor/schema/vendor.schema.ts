@@ -24,7 +24,7 @@ export class Vendor {
   accessToken?: string;
 
   @Field({ nullable: true })
-  @Prop({ type: String, required: true, default: 'IsVendor' })
+  @Prop({ type: String, required: true, default: 'vendor' })
   userType: string;
 
   @Field({ nullable: true })

@@ -71,17 +71,17 @@ export class AuthService {
     const { loginAs, email, password } = payload;
     let loginDetails;
 
-    if (loginAs === UserTypeENum.asUser) {
+    if (loginAs === UserTypeENum.customer) {
       loginDetails = await this.loginUser({
         email: email,
         password: password,
       });
-    } else if (loginAs === UserTypeENum.asVendor) {
+    } else if (loginAs === UserTypeENum.vendor) {
       loginDetails = await this.loginVendor({
         email: email,
         password: password,
       });
-    } else if (loginAs === UserTypeENum.asPlanner) {
+    } else if (loginAs === UserTypeENum.planner) {
       loginDetails = await this.loginPlanner({
         email: email,
         password: password,
@@ -95,11 +95,11 @@ export class AuthService {
 
     let details;
 
-    if (userType === UserTypeENum.asUser) {
+    if (userType === UserTypeENum.customer) {
       details = await this.createUserWithGoogle(payload);
-    } else if (userType === UserTypeENum.asVendor) {
+    } else if (userType === UserTypeENum.vendor) {
       details = await this.createVendorWithGoogle(payload);
-    } else if (userType === UserTypeENum.asPlanner) {
+    } else if (userType === UserTypeENum.planner) {
       details = await this.createPlannerWithGoogle(payload);
     }
 
@@ -416,15 +416,15 @@ export class AuthService {
 
     try {
       let user: any;
-      if (userType === UserTypeENum.asUser) {
+      if (userType === UserTypeENum.customer) {
         user = await this.userService.getByEmail(email);
       }
 
-      if (userType === UserTypeENum.asVendor) {
+      if (userType === UserTypeENum.vendor) {
         user = await this.vendorService.getByEmail(email);
       }
 
-      if (userType === UserTypeENum.asPlanner) {
+      if (userType === UserTypeENum.planner) {
         user = await this.plannerService.getByEmail(email);
       }
 
@@ -453,15 +453,15 @@ export class AuthService {
     try {
       let user: any;
 
-      if (userType === UserTypeENum.asUser) {
+      if (userType === UserTypeENum.customer) {
         user = await this.userService.getByEmail(email);
       }
 
-      if (userType === UserTypeENum.asVendor) {
+      if (userType === UserTypeENum.vendor) {
         user = await this.vendorService.getByEmail(email);
       }
 
-      if (userType === UserTypeENum.asPlanner) {
+      if (userType === UserTypeENum.planner) {
         user = await this.plannerService.getByEmail(email);
       }
 
@@ -495,15 +495,15 @@ export class AuthService {
     try {
       let user: any;
 
-      if (userType === UserTypeENum.asUser) {
+      if (userType === UserTypeENum.customer) {
         user = await this.userService.getByEmail(email);
       }
 
-      if (userType === UserTypeENum.asVendor) {
+      if (userType === UserTypeENum.vendor) {
         user = await this.vendorService.getByEmail(email);
       }
 
-      if (userType === UserTypeENum.asPlanner) {
+      if (userType === UserTypeENum.planner) {
         user = await this.plannerService.getByEmail(email);
       }
 
@@ -537,15 +537,15 @@ export class AuthService {
 
     try {
       let user: any;
-      if (userType === UserTypeENum.asUser) {
+      if (userType === UserTypeENum.customer) {
         user = await this.userService.getByEmail(email);
       }
 
-      if (userType === UserTypeENum.asVendor) {
+      if (userType === UserTypeENum.vendor) {
         user = await this.vendorService.getByEmail(email);
       }
 
-      if (userType === UserTypeENum.asPlanner) {
+      if (userType === UserTypeENum.planner) {
         user = await this.plannerService.getByEmail(email);
       }
 

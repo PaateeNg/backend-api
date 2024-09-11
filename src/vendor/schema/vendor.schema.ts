@@ -24,7 +24,11 @@ export class Vendor {
   accessToken?: string;
 
   @Field({ nullable: true })
-  @Prop({ type: Boolean, required: true, default: false })
+  @Prop({ type: String, required: true, default: 'IsVendor' })
+  userType: string;
+
+  @Field({ nullable: true })
+  @Prop({ type: Boolean, required: true, default: true })
   isVendor: boolean;
 
   @Field({ nullable: true })
@@ -67,7 +71,7 @@ export class Vendor {
   @Prop({ type: String })
   location?: string;
 
-  @Field({ nullable: true })
+  @Field()
   @Prop({ type: String })
   category?: string;
 

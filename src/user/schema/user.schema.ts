@@ -17,7 +17,11 @@ export class User {
   lastName?: string;
 
   @Field({ nullable: true })
-  @Prop({ type: Boolean, required: true, default: false })
+  @Prop({ type: String, required: true, default: 'IsUser' })
+  userType: string;
+
+  @Field({ nullable: true })
+  @Prop({ type: Boolean, required: true, default: true })
   isUser: boolean;
 
   @Field()

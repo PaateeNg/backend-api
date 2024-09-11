@@ -32,7 +32,6 @@ export class PlannerService {
       const savedPlanner = await this.plannerModel.create({
         ...payload,
         password: hashedPassword,
-        isPlanner: true,
       });
 
       // await this.otpService.sendOtp({

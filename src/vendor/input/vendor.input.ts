@@ -32,7 +32,10 @@ export class VendorInput {
   @IsString()
   business_phone: string;
 
-
+  @Field()
+  @IsNotEmpty()
+  @IsString()
+  category: string;
 
   @Field()
   @IsNotEmpty()

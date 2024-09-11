@@ -28,7 +28,6 @@ export class UserService {
       const newUser = await this.userModel.create({
         ...payload,
         password: hashedPassword,
-        isUser: true,
       });
 
       // await this.otpService.sendOtp({

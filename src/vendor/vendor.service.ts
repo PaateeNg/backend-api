@@ -33,7 +33,6 @@ export class VendorService {
       const newVendor = await this.vendorModel.create({
         ...payload,
         password: hashedPassword,
-        isVendor: true,
       });
 
       // await this.otpService.sendOtp({

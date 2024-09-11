@@ -6,7 +6,6 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { UserTypeENum } from 'src/auth/enum/auth.enum';
 
 @InputType()
 export class PlanerInputDto {
@@ -29,6 +28,11 @@ export class PlanerInputDto {
   @IsNotEmpty()
   @IsString()
   business_phone: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsString()
+  businessName: string;
 
   @Field()
   @IsNotEmpty()

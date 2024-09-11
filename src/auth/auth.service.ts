@@ -23,6 +23,7 @@ import { PlannerDocument } from 'src/planner/schema/planner.schema';
 import {
   ChangePasswordDto,
   CreateInputDto,
+  DeletedUserInput,
   ForgotPasswordDTO,
   LoginInputDto,
   RequestOtpDTO,
@@ -88,6 +89,15 @@ export class AuthService {
       });
     }
     return loginDetails;
+  }
+
+  async deleteUser(payload: DeletedUserInput) {
+    const { email, userType } = payload;
+    if (userType === UserTypeENum.customer) {
+      return await this.userService.deleteUserByEmail(email);
+    } else if (userType === UserTypeENum.vendor) {
+    } else if (userType === UserTypeENum.planner) {
+    }
   }
 
   async createAccountWithGoogleOught(payload: CreateAccountWithOughtDto) {

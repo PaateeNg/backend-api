@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateUserInput, UpdateUserDto } from './input/user.input.dto';
 import { hashed } from 'src/common/hashed/util.hash';
 import { InjectModel } from '@nestjs/mongoose';
@@ -137,6 +141,16 @@ export class UserService {
 
     return {
       Response: this.jwtService.sign(jwtPayload),
+    };
+  }
+  async deleteUserByEmail(email: string) {
+    const user = await this.getByEmail(email);
+    if (!user) {
+      throw new BadRequestException('user Not found or has already deleted');
+    }
+    await this.userModel.findOneAndDelete({ email: email }, { new: true });
+    return {
+      Response: 'customer deleted successfully',
     };
   }
 }

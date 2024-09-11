@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -153,6 +154,17 @@ export class VendorService {
 
     return {
       Response: this.jwtService.sign(jwtPayload),
+    };
+  }
+
+  async deleteVendorByEmail(email: string) {
+    const user = await this.getByEmail(email);
+    if (!user) {
+      throw new BadRequestException('Vendor Not found or has already deleted');
+    }
+    await this.vendorModel.findOneAndDelete({ email: email }, { new: true });
+    return {
+      Response: 'Vendor deleted successfully',
     };
   }
 }

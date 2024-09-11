@@ -4,6 +4,7 @@ import { returnString } from 'src/common/return/return.input';
 import { AuthService } from './auth.service';
 import {
   ChangePasswordDto,
+  DeletedUserInput,
   ForgotPasswordDTO,
   LoginInputDto,
   RequestOtpDTO,
@@ -71,6 +72,11 @@ export class AuthResolver {
     currentUser: UserDocument | VendorDocument | PlannerDocument,
   ) {
     return await this.authService.changePassword(payload, currentUser);
+  }
+
+  @Mutation((returns) => returnString)
+  async deleteUser(@Args('payload') payload: DeletedUserInput) {
+    return await this.authService.deleteUser(payload);
   }
 
   @Mutation((returns) => returnString)

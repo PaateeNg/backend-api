@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -149,6 +150,17 @@ export class PlannerService {
 
     return {
       Response: this.jwtService.sign(jwtPayload),
+    };
+  }
+
+  async deletePlannerByEmail(email: string) {
+    const user = await this.getByEmail(email);
+    if (!user) {
+      throw new BadRequestException('Vendor Not found or has already deleted');
+    }
+    await this.plannerModel.findOneAndDelete({ email: email }, { new: true });
+    return {
+      Response: 'Planner deleted successfully',
     };
   }
 }

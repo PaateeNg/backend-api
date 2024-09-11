@@ -79,6 +79,19 @@ export class VerifyAccountDto {
 }
 
 @InputType()
+export class DeletedUserInput {
+  @Field()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsEnum(UserTypeENum)
+  userType: UserTypeENum;
+}
+
+@InputType()
 export class CreateAccountWithOughtDto {
   @Field()
   @IsNotEmpty()

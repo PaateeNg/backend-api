@@ -126,7 +126,7 @@ export class VendorService {
     try {
       const vendors = await this.vendorModel.find({
         isAccountSuspended: false,
-        isVendorApproved: true,
+        // isVendorApproved: true,
         isDeleted: false,
       });
 
@@ -166,5 +166,13 @@ export class VendorService {
     return {
       Response: 'Vendor deleted successfully',
     };
+  }
+
+  async updateProfilePicture(
+    vendor: VendorDocument,
+    file: Express.Multer.File,
+  ): Promise<returnString> {
+    console.log('current vendor', vendor);
+    return;
   }
 }

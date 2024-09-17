@@ -9,7 +9,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schema/user.schema';
 import { Model } from 'mongoose';
 import { OtpService } from 'src/otp/service/otp.service';
-import { OtpEnumType } from 'src/otp/enum/otp.enum';
 import { JwtService } from '@nestjs/jwt';
 import {
   CreateInputDto,

@@ -173,6 +173,7 @@ export class VendorService {
     file: Express.Multer.File,
   ): Promise<returnString> {
     console.log('current vendor', vendor);
+    console.log(file);
     return;
   }
 }

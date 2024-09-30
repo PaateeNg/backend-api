@@ -63,7 +63,7 @@ export class UserService {
     return await this.userModel.find({
       isDeleted: false,
       isAccountSuspended: false,
-      isAccountVerified: true,
+      // isAccountVerified: true,
     });
   }
 

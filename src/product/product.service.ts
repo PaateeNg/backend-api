@@ -78,6 +78,7 @@ export class ProductService {
     payload: UpdateProductsInput,
     vendor: VendorDocument,
   ) {
+    const { price } = payload;
     try {
       const product = await this.getById(id);
 
@@ -88,9 +89,15 @@ export class ProductService {
         throw new NotFoundException('product not found');
       }
 
+      if (price) {
+        const charge = payload.price * 0.1;
+
+        payload.price = price + charge;
+      }
+
       const updatedProduct = await this.productModel.findOneAndUpdate(
         { _id: id },
-        { payload },
+        { ...payload },
         {
           new: true,
         },
@@ -100,7 +107,8 @@ export class ProductService {
         throw new GraphQLError('Failed to update product');
       }
 
-      return 'product updated successfully';
+      //  console.log(updatedProduct);
+      return updatedProduct;
     } catch (error) {
       throw new InternalServerErrorException('server error');
     }
@@ -157,7 +165,7 @@ export class ProductService {
       const product = await this.productModel.findOne({
         _id: id,
         isDeleted: false,
-        isProductApproved: true,
+        //isProductApproved: true,
       });
 
       if (!product) {

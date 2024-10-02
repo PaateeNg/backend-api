@@ -16,9 +16,11 @@ export class Product {
   @Prop({ type: String, required: true })
   makeBy: string;
 
-  @Field(() => [String], { nullable: true })
-  @Prop({ type: [String], enum: ProductCategory, required: true, default: [] })
-  category: ProductCategory[];
+  @Field(() => String, { nullable: true })
+  @Prop({ type: String })
+  category: string;
+
+  // @Prop({ type: [String], enum: ProductCategory, required: true, default: [] })
 
   @Field()
   @Prop({ type: Number, required: true })
@@ -36,12 +38,20 @@ export class Product {
   @Prop({ type: Boolean, default: false })
   priceNegotiable: boolean;
 
+  @Field({ nullable: true })
+  @Prop({ type: Number, default: 1 })
+  quantity?: number;
+
   @Field()
   @Prop({ type: Boolean, default: false })
   isProductApproved: boolean;
 
   @Prop({ type: Boolean, default: false })
   isDeleted: boolean;
+
+  @Field({ nullable: true })
+  @Prop({ default: Date.now() })
+  date_added: Date;
 
   @Field(() => Vendor)
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Vendor' })

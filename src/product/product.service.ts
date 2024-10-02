@@ -33,9 +33,9 @@ export class ProductService {
   ): Promise<ProductDocument> {
     const { price } = payload;
     try {
-      if (vendor.isVendorApproved === false) {
-        throw new UnauthorizedException(`your account is not active yet`);
-      }
+      // if (vendor.isVendorApproved === false) {
+      //   throw new UnauthorizedException(`your account is not active yet`);
+      // }
       if (vendor.isAccountSuspended) {
         throw new UnauthorizedException('Contact Support');
       }
@@ -48,17 +48,21 @@ export class ProductService {
 
       const newPrice = price + charge;
 
+      const makeBy = vendor.businessName;
+
       //image function will here
 
       const product = await this.productModel.create({
         ...payload,
         price: newPrice,
+        makeBy: makeBy,
         creatorId: vendor._id,
       });
 
       vendor.productMenu.push(product._id);
 
       await vendor.save();
+      console.log(product.category);
 
       return product;
     } catch (error) {

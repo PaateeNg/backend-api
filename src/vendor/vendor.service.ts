@@ -130,6 +130,8 @@ export class VendorService {
         isDeleted: false,
       });
 
+      console.log(vendors);
+
       return vendors;
     } catch (error) {
       throw new InternalServerErrorException('Failed to fetch vendors');

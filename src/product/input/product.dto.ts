@@ -18,26 +18,31 @@ export class CreateProductInput {
   @IsString()
   productName: string;
 
-  @Field()
-  @IsNotEmpty()
-  @IsString()
-  makeBy: string;
+  // @Field()
+  // @IsNotEmpty()
+  // @IsString()
+  // makeBy: string;
 
   @Field()
   @IsNotEmpty()
   @IsString()
   productDescription: string;
 
-  @Field(() => [String])
+  @Field(() => String)
   @IsNotEmpty()
-  @IsArray()
-  @IsEnum(ProductCategory, { each: true })
-  category: string[];
+  //@IsArray()
+  //@IsEnum(ProductCategory, { each: true })
+  category: string;
 
   @Field()
   @IsNumber()
   @IsNotEmpty()
   price: number;
+
+  @Field()
+  @IsNumber()
+  @IsOptional()
+  quantity?: number;
 
   @Field({ nullable: true })
   @IsOptional()

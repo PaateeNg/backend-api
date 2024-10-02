@@ -35,6 +35,11 @@ export class VendorInput {
   @Field()
   @IsNotEmpty()
   @IsString()
+  businessName: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsString()
   category: string;
 
   @Field()
@@ -78,8 +83,18 @@ export class UpdateVendorDto {
 
   @Field({ nullable: true })
   @IsOptional()
+  @IsString()
+  instagram: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  x: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
   @IsNumber()
-  phoneNumber?: number;
+  business_phone?: number;
 }
 
 @InputType()

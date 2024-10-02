@@ -81,11 +81,15 @@ export class Vendor {
 
   @Field({ nullable: true })
   @Prop({ type: String })
-  profilePhoto?: string;
+  x?: string;
 
-  @Field()
-  @Prop({ type: Number })
-  phoneNumber?: number;
+  @Field({ nullable: true })
+  @Prop({ type: String })
+  instagram?: string;
+
+  @Field({ nullable: true })
+  @Prop({ type: String })
+  profilePhoto?: string;
 
   @Field(() => [String], { nullable: true })
   @Prop([
@@ -98,6 +102,11 @@ export class Vendor {
 
   @Prop({ default: false, type: Boolean })
   isAccountSuspended: boolean;
+  ///work later
+
+  @Field(() => Date, { nullable: true })
+  @Prop({ default: Date.now() })
+  date_joined: Date;
 }
 
 export const VendorSchema = SchemaFactory.createForClass(Vendor);

@@ -39,7 +39,7 @@ export class Product {
   priceNegotiable: boolean;
 
   @Field({ nullable: true })
-  @Prop({ type: Number, default: 1 })
+  @Prop({ type: String, default: 1 })
   quantity?: number;
 
   @Field()

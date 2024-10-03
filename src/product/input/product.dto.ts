@@ -3,13 +3,14 @@ import {
   IsArray,
   IsBoolean,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
 import { ProductCategory } from '../enum/product.enum';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 @InputType()
 export class CreateProductInput {
@@ -35,12 +36,13 @@ export class CreateProductInput {
   category: string;
 
   @Field()
-  @IsNumber()
+  @IsNumber({})
+  @Type(() => Number)
   @IsNotEmpty()
   price: number;
 
   @Field()
-  @IsNumber()
+  @IsInt()
   @IsOptional()
   quantity?: number;
 

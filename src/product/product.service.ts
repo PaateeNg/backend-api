@@ -62,7 +62,6 @@ export class ProductService {
       vendor.productMenu.push(product._id);
 
       await vendor.save();
-      console.log(product.category);
 
       return product;
     } catch (error) {
@@ -117,7 +116,7 @@ export class ProductService {
   async getAll(): Promise<ProductDocument[]> {
     return await this.productModel.find({
       isDeleted: false,
-      isProductApproved: true,
+      //isProductApproved: true,
     });
   }
 
@@ -150,7 +149,7 @@ export class ProductService {
       query,
       {
         isDeleted: false,
-        isProductApproved: true,
+        //isProductApproved: true,
       },
     );
 

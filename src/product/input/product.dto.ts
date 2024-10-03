@@ -31,8 +31,9 @@ export class CreateProductInput {
 
   @Field(() => String)
   @IsNotEmpty()
-  //@IsArray()
-  //@IsEnum(ProductCategory, { each: true })
+  @IsString()
+  // @IsArray()
+  // @IsEnum(ProductCategory, { each: true })
   category: string;
 
   @Field()
@@ -49,7 +50,7 @@ export class CreateProductInput {
   @Field({ nullable: true })
   @IsOptional()
   @IsBoolean()
-  priceNegotiable: boolean;
+  priceNegotiable?: boolean;
 }
 
 @InputType()

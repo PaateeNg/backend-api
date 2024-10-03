@@ -8,6 +8,8 @@ import { returnString } from 'src/common/return/return.input';
 import { UpdateVendorDto } from './input/vendor.input';
 import { SharpPipe } from 'src/common/utils/upload/file-upload.util';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { IVendor } from 'src/common/serilize/vendor/profile-response';
+import { Serialize } from 'src/auth/interceptors/serialize.interceptor';
 
 @Resolver((of) => Vendor)
 export class VendorResolver {
@@ -35,5 +37,19 @@ export class VendorResolver {
   @Query((returns) => [Vendor])
   getAllVendor(): Promise<VendorDocument[]> {
     return this.vendorService.getAllVendors();
+  }
+
+  //@Serialize(IVendor)
+  @Query((returns) => Vendor)
+  @UseGuards(GqlAuthGuard)
+  async currentVendor(
+    @GetCurrentGqlUser()
+    currentUser: VendorDocument,
+  ) {
+    const flatProductMenu = currentUser.productMenu.flat();
+    return {
+      ...currentUser.toObject(),
+      productMenu: flatProductMenu,
+    };
   }
 }

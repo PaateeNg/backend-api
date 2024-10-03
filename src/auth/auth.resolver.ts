@@ -107,14 +107,14 @@ export class AuthResolver {
     return await this.authService.requestOtp(payload);
   }
 
-  @Query((returns) => returnString)
-  @UseGuards(GqlAuthGuard)
-  async currentUser(
-    @GetCurrentGqlUser()
-    currentUser: UserDocument | VendorDocument | PlannerDocument,
-  ) {
-    return currentUser;
-  }
+  // @Query((returns) => returnString)
+  // @UseGuards(GqlAuthGuard)
+  // async currentUser(
+  //   @GetCurrentGqlUser()
+  //   currentUser: UserDocument | VendorDocument | PlannerDocument,
+  // ) {
+  //   return currentUser;
+  // }
 
 
 }

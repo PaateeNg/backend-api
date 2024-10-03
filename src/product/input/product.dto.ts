@@ -43,7 +43,7 @@ export class CreateProductInput {
   price: number;
 
   @Field()
-  @IsInt()
+  @IsNumber()
   @IsOptional()
   quantity?: number;
 

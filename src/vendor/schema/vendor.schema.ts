@@ -7,6 +7,10 @@ export type VendorDocument = Vendor & Document;
 @ObjectType()
 @Schema({ timestamps: true })
 export class Vendor {
+  @Field(() => String, { nullable: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId })
+  _id?: mongoose.Types.ObjectId;
+
   @Field()
   @Prop({ type: String, required: true, unique: true })
   email: string;
@@ -105,8 +109,8 @@ export class Vendor {
   ///work later
 
   @Field(() => Date, { nullable: true })
-  @Prop({ default: Date.now() })
-  date_joined: Date;
+  @Prop({})
+  createdAt: Date;
 }
 
 export const VendorSchema = SchemaFactory.createForClass(Vendor);

@@ -8,6 +8,10 @@ export type UserDocument = User & Document;
 @ObjectType()
 @Schema({ timestamps: true })
 export class User {
+  @Field(() => String, { nullable: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId })
+  _id?: mongoose.Types.ObjectId;
+
   @Field({ nullable: true })
   @Prop({ type: String })
   firstName?: string;
@@ -65,6 +69,10 @@ export class User {
 
   @Prop({ type: Boolean, default: false })
   isAccountSuspended: boolean;
+
+  @Field(() => Date, { nullable: true })
+  @Prop({})
+  createdAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

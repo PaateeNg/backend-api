@@ -34,4 +34,13 @@ export class PlannerResolver {
   async getAllPlanner(): Promise<PlannerDocument[]> {
     return await this.plannerService.getAllPlanner();
   }
+
+  @Query((returns) => Planner)
+  @UseGuards(GqlAuthGuard)
+  async currentPlanner(
+    @GetCurrentGqlUser()
+    currentPlanner: PlannerDocument,
+  ) {
+    return currentPlanner;
+  }
 }

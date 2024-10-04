@@ -30,4 +30,17 @@ export class UserResolver {
   async getAllUser(): Promise<UserDocument[]> {
     return await this.userService.getAll();
   }
+
+  @Query((returns) => User)
+  @UseGuards(GqlAuthGuard)
+  async currentCustomer(
+    @GetCurrentGqlUser()
+    currentUser: UserDocument,
+  ) {
+    const flatBookedMenu = currentUser.bookedMenu.flat();
+    return {
+      ...currentUser.toObject(),
+      bookedMenu: flatBookedMenu,
+    };
+  }
 }

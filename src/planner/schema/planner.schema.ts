@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { Role } from 'src/common/enum/role.enum';
 
 export type PlannerDocument = Planner & Document;
@@ -8,6 +8,10 @@ export type PlannerDocument = Planner & Document;
 @ObjectType()
 @Schema({ timestamps: true })
 export class Planner {
+  @Field(() => String, { nullable: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId })
+  _id?: mongoose.Types.ObjectId;
+
   @Field()
   @Prop({ type: String, unique: true, required: true })
   email: string;

@@ -49,6 +49,10 @@ export class Vendor {
 
   @Field({ nullable: true })
   @Prop({ type: String })
+  business_description: string;
+
+  @Field({ nullable: true })
+  @Prop({ type: String })
   state: string;
 
   @Field()

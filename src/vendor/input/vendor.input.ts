@@ -79,6 +79,11 @@ export class UpdateVendorDto {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
+  business_description?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
   years_of_Experience?: string;
 
   @Field({ nullable: true })

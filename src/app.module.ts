@@ -15,7 +15,7 @@ import { OtpModule } from './otp/module/otp.module';
 import { PaginationModule } from './pagination/pagination.module';
 import { PaymentModule } from './payment/module/payment.module';
 import { ThrottlerMod } from './throller/throller.module';
-import { graphqlUploadExpress } from 'graphql-upload';
+//import { graphqlUploadExpress } from 'graphql-upload';
 
 require('dotenv').config();
 
@@ -51,7 +51,7 @@ require('dotenv').config();
   ],
 })
 export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(graphqlUploadExpress()).forRoutes('*'); // Apply graphql-upload middleware globally
-  }
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer.apply(graphqlUploadExpress()).forRoutes('*'); // Apply graphql-upload middleware globally
+  // }
 }
